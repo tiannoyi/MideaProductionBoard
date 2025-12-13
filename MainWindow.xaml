@@ -17,6 +17,7 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontFamily" Value="Microsoft YaHei"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="TextAlignment" Value="Center"/>
         </Style>
 
         <Style TargetType="TextBox">
@@ -50,11 +51,11 @@
     </Window.Resources>
 
     <!-- 主布局网格 -->
-    <Grid Margin="15">
+    <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- 第0行：日期时间显示 -->
-            <RowDefinition Height="60"/>
+            <!-- 第0行：顶部区域（日期+Midea） -->
+            <RowDefinition Height="Auto"/>
             <!-- 第1行：主标题 -->
             <RowDefinition Height="Auto"/>
             <!-- 第2行：副标题 -->
@@ -79,55 +80,49 @@
             <!-- 第2列：右侧内容 -->
         </Grid.ColumnDefinitions>
 
-        <!-- 日期时间显示区域 -->
-        <Grid Grid.Row="0" 
-              Grid.Column="2" 
-              Margin="0,5,0,0">
+        <!-- 顶部区域：Midea Logo和日期时间 -->
+        <Grid Grid.Row="0" Grid.ColumnSpan="3" Margin="0,5,0,10">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- 当前日期显示 -->
+            <!-- Midea Logo -->
             <TextBlock Grid.Column="0" 
-                      Text="{Binding CurrentDate}" 
-                      FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=15}" 
-                      HorizontalAlignment="Left" 
+                      Text="Midea" 
+                      FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=42}" 
+                      FontWeight="Bold" 
                       VerticalAlignment="Center"/>
 
-            <!-- 当前时间显示 -->
-            <TextBlock Grid.Column="1" 
-                      Text="{Binding CurrentTime}" 
-                      FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=20}" 
-                      HorizontalAlignment="Right" 
-                      VerticalAlignment="Center"/>
+            <!-- 日期时间显示 -->
+            <StackPanel Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Right">
+                <TextBlock Text="{Binding CurrentDate}" 
+                          FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=16}" 
+                          HorizontalAlignment="Right"/>
+                <TextBlock Text="{Binding CurrentTime}" 
+                          FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=24}" 
+                          FontWeight="Bold"
+                          HorizontalAlignment="Right"/>
+            </StackPanel>
         </Grid>
 
         <!-- 主标题：总装一分厂除湿机线 -->
         <TextBlock Grid.Row="1" 
                   Grid.ColumnSpan="3" 
                   Text="总装一分厂除湿机线" 
-                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=45}" 
+                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=48}" 
                   FontWeight="Bold" 
                   HorizontalAlignment="Center" 
-                  VerticalAlignment="Center"/>
-
-        <!-- 品牌Logo：Midea -->
-        <TextBlock Grid.Row="1" 
-                  Grid.ColumnSpan="3" 
-                  Text="Midea" 
-                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=40}" 
-                  FontWeight="Bold"  
-                  HorizontalAlignment="Left"
-                  Margin="15,0,0,0"/>
+                  Margin="0,0,0,5"/>
 
         <!-- 英文副标题 -->
         <TextBlock Grid.Row="2" 
                   Grid.ColumnSpan="3" 
                   Text="Dehumidifier Line of General Assembly No.1 Branch"
-                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=20}" 
+                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=22}" 
                   HorizontalAlignment="Center" 
-                  Margin="0,0,0,10"/>
+                  Margin="0,0,0,15"/>
 
         <!-- PLC状态警告边框 -->
         <Border Grid.Row="3" 
@@ -140,7 +135,7 @@
                 Margin="0,0,0,10">
             <TextBlock x:Name="txtPlcStatusAlert" 
                       Text="PLC未连接通讯异常" 
-                      FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=16}" 
+                      FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
                       FontWeight="Bold" 
                       HorizontalAlignment="Center"
                       Foreground="White"/>
@@ -152,8 +147,9 @@
                   Header="系统配置" 
                   Foreground="White" 
                   BorderBrush="#64B5F6" 
-                  Margin="0,0,0,10">
-            <Grid Margin="10">
+                  Margin="0,0,0,15"
+                  Padding="5">
+            <Grid Margin="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -260,185 +256,253 @@
             </Grid>
         </GroupBox>
 
-        <!-- 生产数据展示区域 - 使用Grid布局 -->
-        <Grid Grid.Row="5" 
-              Grid.ColumnSpan="3" 
-              Margin="0,0,0,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <!-- 左侧数据列 -->
-                <ColumnDefinition Width="10"/>
-                <!-- 间隔 -->
-                <ColumnDefinition Width="*"/>
-                <!-- 右侧数据列 -->
-            </Grid.ColumnDefinitions>
+        <!-- 生产数据展示区域 - 使用UniformGrid确保均匀分布 -->
+        <UniformGrid Grid.Row="5" 
+                     Grid.ColumnSpan="3" 
+                     Columns="2"
+                     Rows="3"
+                     Margin="0,0,0,10">
 
-            <!-- 左侧数据面板 -->
-            <Grid Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="10"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="10"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+            <!-- 当天计划总产量 -->
+            <Border Background="#1976D2" 
+                    CornerRadius="10" 
+                    Margin="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                <!-- 当天计划总产量 -->
-                <Border Grid.Row="0"
-                        Background="#1976D2" 
-                        CornerRadius="5" 
-                        Padding="10">
-                    <StackPanel>
-                        <TextBlock Text="当天计划总产量" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=24}" 
-                                  FontWeight="SemiBold"/>
-                        <TextBlock Text="Total output of today" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=20}" 
-                                  Opacity="0.8" 
-                                  Margin="0,0,0,5"/>
+                    <TextBlock Grid.Row="0" 
+                              Text="当天计划总产量" 
+                              FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=28}" 
+                              FontWeight="SemiBold"
+                              Margin="0,5,0,0"/>
+
+                    <TextBlock Grid.Row="1" 
+                              Text="Total output of today" 
+                              FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=22}" 
+                              Opacity="0.9" 
+                              Margin="0,3,0,5"/>
+
+                    <!-- 使用Viewbox确保数值自适应大小 -->
+                    <Viewbox Grid.Row="2" 
+                             Stretch="Uniform" 
+                             MaxHeight="100"
+                             MaxWidth="300"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center">
                         <TextBlock x:Name="txtTotalOutput" 
                                   Text="0" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=40}" 
+                                  FontSize="80" 
                                   FontWeight="Bold" 
-                                  Foreground="Yellow"
-                                  HorizontalAlignment="Center" 
-                                  Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Border>
+                                  Foreground="Yellow"/>
+                    </Viewbox>
+                </Grid>
+            </Border>
 
-                <!-- 平均线小时目标产量 -->
-                <Border Grid.Row="2"
-                        Background="#1976D2" 
-                        CornerRadius="5" 
-                        Padding="10">
-                    <StackPanel>
-                        <TextBlock Text="平均线小时目标产量" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=24}" 
-                                  FontWeight="SemiBold"/>
-                        <TextBlock Text="The average UPH" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=20}" 
-                                  Opacity="0.8" 
-                                  Margin="0,0,0,5"/>
-                        <TextBlock x:Name="txtAverageUPH" 
-                                  Text="0" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=40}" 
-                                  FontWeight="Bold" 
-                                  Foreground="Yellow"
-                                  HorizontalAlignment="Center" 
-                                  Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Border>
+            <!-- 当前累计到达量 -->
+            <Border Background="#1976D2" 
+                    CornerRadius="10" 
+                    Margin="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                <!-- 平均实际线小时产量 -->
-                <Border Grid.Row="4"
-                        Background="#1976D2" 
-                        CornerRadius="5" 
-                        Padding="10">
-                    <StackPanel>
-                        <TextBlock Text="平均实际线小时产量" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=24}" 
-                                  FontWeight="SemiBold"/>
-                        <TextBlock Text="The actual UPH" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=20}" 
-                                  Opacity="0.8" 
-                                  Margin="0,0,0,5"/>
-                        <TextBlock x:Name="txtActualUPH" 
-                                  Text="0" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=40}" 
-                                  FontWeight="Bold" 
-                                  Foreground="Red"
-                                  HorizontalAlignment="Center" 
-                                  Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
+                    <TextBlock Grid.Row="0" 
+                              Text="当前累计到达量" 
+                              FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=28}" 
+                              FontWeight="SemiBold"
+                              Margin="0,5,0,0"/>
 
-            <!-- 右侧数据面板 -->
-            <Grid Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="10"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="10"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="1" 
+                              Text="Now total Output" 
+                              FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=22}" 
+                              Opacity="0.9" 
+                              Margin="0,3,0,5"/>
 
-                <!-- 当前累计到达量 -->
-                <Border Grid.Row="0"
-                        Background="#1976D2" 
-                        CornerRadius="5" 
-                        Padding="10">
-                    <StackPanel>
-                        <TextBlock Text="当前累计到达量" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=24}" 
-                                  FontWeight="SemiBold"/>
-                        <TextBlock Text="Now total Output" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=20}" 
-                                  Opacity="0.8" 
-                                  Margin="0,0,0,5"/>
+                    <!-- 使用Viewbox确保数值自适应大小 -->
+                    <Viewbox Grid.Row="2" 
+                             Stretch="Uniform" 
+                             MaxHeight="100"
+                             MaxWidth="300"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center">
                         <TextBlock x:Name="txtCumulativeOutput" 
                                   Text="0" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=40}" 
+                                  FontSize="80" 
                                   FontWeight="Bold" 
-                                  Foreground="Red"
-                                  HorizontalAlignment="Center" 
-                                  Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Border>
+                                  Foreground="Red"/>
+                    </Viewbox>
+                </Grid>
+            </Border>
 
-                <!-- 上小时实际产量 -->
-                <Border Grid.Row="2"
-                        Background="#1976D2" 
-                        CornerRadius="5" 
-                        Padding="10">
-                    <StackPanel>
-                        <TextBlock Text="上小时实际产量" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=24}" 
-                                  FontWeight="SemiBold"/>
-                        <TextBlock Text="Last hour UPH" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=20}" 
-                                  Opacity="0.8" 
-                                  Margin="0,0,0,5"/>
+            <!-- 平均线小时目标产量 -->
+            <Border Background="#1976D2" 
+                    CornerRadius="10" 
+                    Margin="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" 
+                              Text="平均线小时目标产量" 
+                              FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=26}" 
+                              FontWeight="SemiBold"
+                              Margin="0,5,0,0"/>
+
+                    <TextBlock Grid.Row="1" 
+                              Text="The average UPH" 
+                              FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=20}" 
+                              Opacity="0.9" 
+                              Margin="0,3,0,5"/>
+
+                    <!-- 使用Viewbox确保数值自适应大小 -->
+                    <Viewbox Grid.Row="2" 
+                             Stretch="Uniform" 
+                             MaxHeight="100"
+                             MaxWidth="300"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center">
+                        <TextBlock x:Name="txtAverageUPH" 
+                                  Text="0" 
+                                  FontSize="80" 
+                                  FontWeight="Bold" 
+                                  Foreground="Yellow"/>
+                    </Viewbox>
+                </Grid>
+            </Border>
+
+            <!-- 上小时实际产量 -->
+            <Border Background="#1976D2" 
+                    CornerRadius="10" 
+                    Margin="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" 
+                              Text="上小时实际产量" 
+                              FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=26}" 
+                              FontWeight="SemiBold"
+                              Margin="0,5,0,0"/>
+
+                    <TextBlock Grid.Row="1" 
+                              Text="Last hour UPH" 
+                              FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=20}" 
+                              Opacity="0.9" 
+                              Margin="0,3,0,5"/>
+
+                    <!-- 使用Viewbox确保数值自适应大小 -->
+                    <Viewbox Grid.Row="2" 
+                             Stretch="Uniform" 
+                             MaxHeight="100"
+                             MaxWidth="300"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center">
                         <TextBlock x:Name="txtLastHourUPH" 
                                   Text="0" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=40}" 
+                                  FontSize="80" 
                                   FontWeight="Bold" 
-                                  Foreground="Red"
-                                  HorizontalAlignment="Center" 
-                                  Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Border>
+                                  Foreground="Red"/>
+                    </Viewbox>
+                </Grid>
+            </Border>
 
-                <!-- 本小时实际产量 -->
-                <Border Grid.Row="4"
-                        Background="#1976D2" 
-                        CornerRadius="5" 
-                        Padding="10">
-                    <StackPanel>
-                        <TextBlock Text="本小时实际产量" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=24}" 
-                                  FontWeight="SemiBold"/>
-                        <TextBlock Text="This hour UPH" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=20}" 
-                                  Opacity="0.8" 
-                                  Margin="0,0,0,5"/>
+            <!-- 平均实际线小时产量 -->
+            <Border Background="#1976D2" 
+                    CornerRadius="10" 
+                    Margin="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" 
+                              Text="平均实际线小时产量" 
+                              FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=24}" 
+                              FontWeight="SemiBold"
+                              Margin="0,5,0,0"/>
+
+                    <TextBlock Grid.Row="1" 
+                              Text="The actual UPH" 
+                              FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
+                              Opacity="0.9" 
+                              Margin="0,3,0,5"/>
+
+                    <!-- 使用Viewbox确保数值自适应大小 -->
+                    <Viewbox Grid.Row="2" 
+                             Stretch="Uniform" 
+                             MaxHeight="100"
+                             MaxWidth="300"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center">
+                        <TextBlock x:Name="txtActualUPH" 
+                                  Text="0" 
+                                  FontSize="80" 
+                                  FontWeight="Bold" 
+                                  Foreground="Red"/>
+                    </Viewbox>
+                </Grid>
+            </Border>
+
+            <!-- 本小时实际产量 -->
+            <Border Background="#1976D2" 
+                    CornerRadius="10" 
+                    Margin="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" 
+                              Text="本小时实际产量" 
+                              FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=26}" 
+                              FontWeight="SemiBold"
+                              Margin="0,5,0,0"/>
+
+                    <TextBlock Grid.Row="1" 
+                              Text="This hour UPH" 
+                              FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=20}" 
+                              Opacity="0.9" 
+                              Margin="0,3,0,5"/>
+
+                    <!-- 使用Viewbox确保数值自适应大小 -->
+                    <Viewbox Grid.Row="2" 
+                             Stretch="Uniform" 
+                             MaxHeight="100"
+                             MaxWidth="300"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center">
                         <TextBlock x:Name="txtThisHourUPH" 
                                   Text="0" 
-                                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=40}" 
+                                  FontSize="80" 
                                   FontWeight="Bold" 
-                                  Foreground="Red"
-                                  HorizontalAlignment="Center" 
-                                  Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </Grid>
+                                  Foreground="Red"/>
+                    </Viewbox>
+                </Grid>
+            </Border>
+        </UniformGrid>
 
         <!-- 状态信息显示 -->
         <TextBlock Grid.Row="6" 
                   Grid.ColumnSpan="3" 
                   x:Name="txtStatus" 
-                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=12}" 
+                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=14}" 
                   HorizontalAlignment="Center" 
                   Margin="0,0,0,10"
                   Text="等待连接PLC..."/>
