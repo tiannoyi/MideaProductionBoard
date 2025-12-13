@@ -1,15 +1,19 @@
 ﻿<Window x:Class="MideaProductionBoard.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="麒麟实业有限公司制作 - 总装分厂一线" Height="915" Width="1245"
+        Title="麒麟实业有限公司制作 - 总装分厂一线" 
+        Height="915" 
+        Width="1245"
         WindowStartupLocation="CenterScreen"
         Background="#0D47A1">
+
     <Window.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontFamily" Value="Microsoft YaHei"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
+
         <Style TargetType="TextBox">
             <Setter Property="FontFamily" Value="Microsoft YaHei"/>
             <Setter Property="FontSize" Value="16"/>
@@ -18,6 +22,7 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
+
         <Style TargetType="Button">
             <Setter Property="FontFamily" Value="Microsoft YaHei"/>
             <Setter Property="FontSize" Value="14"/>
@@ -29,6 +34,7 @@
             <Setter Property="MinWidth" Value="100"/>
             <Setter Property="MinHeight" Value="35"/>
         </Style>
+
         <Storyboard x:Key="BlinkAnimation" RepeatBehavior="Forever">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity">
                 <EasingDoubleKeyFrame KeyTime="0:0:0" Value="1"/>
@@ -37,170 +43,438 @@
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
     </Window.Resources>
+
+    <!-- 主布局网格：优化行定义，确保所有内容都能显示 -->
     <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <!-- 第0行：日期时间显示 -->
+            <RowDefinition Height="60"/>
+            <!-- 第1行：主标题 -->
             <RowDefinition Height="Auto"/>
+            <!-- 第2行：副标题 -->
             <RowDefinition Height="Auto"/>
+            <!-- 第3行：PLC状态警告 -->
             <RowDefinition Height="Auto"/>
+            <!-- 第4行：系统配置区域 -->
             <RowDefinition Height="*"/>
+            <!-- 第5行：生产数据显示区域 -->
             <RowDefinition Height="Auto"/>
+            <!-- 第6行：状态信息 -->
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <!-- 第7行：操作按钮区域 -->
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
+            <!-- 第0列：左侧内容 -->
             <ColumnDefinition Width="10"/>
+            <!-- 第1列：间隔 -->
             <ColumnDefinition Width="*"/>
+            <!-- 第2列：右侧内容 -->
         </Grid.ColumnDefinitions>
-        <Grid Grid.Row="0" Margin="15,-5,0,57" Grid.Column="2" Grid.RowSpan="2" RenderTransformOrigin="0,0">
+
+        <!-- 日期时间显示区域 -->
+        <Grid Grid.Row="0" 
+              Grid.Column="2" 
+              Margin="0,5,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="{Binding CurrentDate}" FontSize="15" 
-                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBlock Grid.Column="2" Text="{Binding CurrentTime}" FontSize="20" 
-                      HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
+            <!-- 当前日期显示 -->
+            <TextBlock Grid.Column="0" 
+                      Text="{Binding CurrentDate}" 
+                      FontSize="15" 
+                      HorizontalAlignment="Left" 
+                      VerticalAlignment="Center"/>
 
+            <!-- 当前时间显示 -->
+            <TextBlock Grid.Column="1" 
+                      Text="{Binding CurrentTime}" 
+                      FontSize="20" 
+                      HorizontalAlignment="Right" 
+                      VerticalAlignment="Center"/>
         </Grid>
-        <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="总装一分厂除湿机线" 
-                   FontSize="45" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Margin="0,0,0,10"/>
-        <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="Midea" 
-           FontSize="40" FontWeight="Bold"  
-           Margin="0,14,0,43" Grid.RowSpan="2"/>
-        <TextBlock Grid.Row="2" Grid.ColumnSpan="3" Text="Dehumidifier Line of General Assembiy No.1 Branch"
-                   FontSize="20" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-        <Border Grid.Row="3" Grid.ColumnSpan="3" x:Name="borderPlcStatus" 
-                Background="#D32F2F" CornerRadius="5" Padding="10" 
-                Visibility="Collapsed" Margin="0,0,0,15">
-            <TextBlock x:Name="txtPlcStatusAlert" Text="PLC未连接通讯异常" 
-                      FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"
+
+        <!-- 主标题：总装一分厂除湿机线 -->
+        <TextBlock Grid.Row="1" 
+                  Grid.ColumnSpan="3" 
+                  Text="总装一分厂除湿机线" 
+                  FontSize="45" 
+                  FontWeight="Bold" 
+                  HorizontalAlignment="Center" 
+                  VerticalAlignment="Center"/>
+
+        <!-- 品牌Logo：Midea -->
+        <TextBlock Grid.Row="1" 
+                  Grid.ColumnSpan="3" 
+                  Text="Midea" 
+                  FontSize="40" 
+                  FontWeight="Bold"  
+                  HorizontalAlignment="Left"
+                  Margin="15,0,0,0"/>
+
+        <!-- 英文副标题 -->
+        <TextBlock Grid.Row="2" 
+                  Grid.ColumnSpan="3" 
+                  Text="Dehumidifier Line of General Assembly No.1 Branch"
+                  FontSize="20" 
+                  HorizontalAlignment="Center" 
+                  Margin="0,0,0,10"/>
+
+        <!-- PLC状态警告边框（初始状态为隐藏） -->
+        <Border Grid.Row="3" 
+                Grid.ColumnSpan="3" 
+                x:Name="borderPlcStatus" 
+                Background="#D32F2F"  
+            CornerRadius="5" 
+                Padding="10" 
+                Visibility="Collapsed" 
+                Margin="0,0,0,10">
+            <TextBlock x:Name="txtPlcStatusAlert" 
+                      Text="PLC未连接通讯异常" 
+                      FontSize="16" 
+                      FontWeight="Bold" 
+                      HorizontalAlignment="Center"
                       Foreground="White"/>
         </Border>
-        <GroupBox Grid.Row="4" Grid.ColumnSpan="4" Header="系统配置" Foreground="White" 
-                  BorderBrush="#64B5F6" Margin="0,0,0,15">
+
+        <!-- 系统配置区域分组框 -->
+        <GroupBox Grid.Row="4" 
+                  Grid.ColumnSpan="3" 
+                  Header="系统配置" 
+                  Foreground="White" 
+                  BorderBrush="#64B5F6" 
+                  Margin="0,0,0,10">
             <Grid Margin="10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <!-- 第0行：PLC连接信息 -->
                     <RowDefinition Height="Auto"/>
+                    <!-- 第1行：生产计划信息 -->
                 </Grid.RowDefinitions>
+
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
+                    <!-- 标签列 -->
                     <ColumnDefinition Width="*"/>
+                    <!-- 值显示列 -->
                     <ColumnDefinition Width="Auto"/>
+                    <!-- 标签列 -->
                     <ColumnDefinition Width="*"/>
+                    <!-- 值显示列 -->
                     <ColumnDefinition Width="Auto"/>
+                    <!-- 按钮列 -->
                     <ColumnDefinition Width="*"/>
+                    <!-- 状态显示列 -->
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="PLC连接状态:" VerticalAlignment="Center" Margin="0,0,10,5"/>
-                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="txtConnectionStatus" Text="未连接" 
-                          VerticalAlignment="Center" Margin="0,0,20,5"/>
+                <!-- 第0行：PLC连接状态信息 -->
+                <TextBlock Grid.Row="0" 
+                          Grid.Column="0" 
+                          Text="PLC连接状态:" 
+                          VerticalAlignment="Center" 
+                          Margin="0,0,10,5"/>
 
-                <TextBlock Grid.Row="0" Grid.Column="2" Text="PLC地址:" VerticalAlignment="Center" Margin="0,0,10,5"/>
-                <TextBlock Grid.Row="0" Grid.Column="3" x:Name="txtPlcAddress" Text="192.168.1.30:4998" 
-                          VerticalAlignment="Center" Margin="0,0,20,5"/>
+                <TextBlock Grid.Row="0" 
+                          Grid.Column="1" 
+                          x:Name="txtConnectionStatus" 
+                          Text="未连接" 
+                          VerticalAlignment="Center" 
+                          Margin="0,0,20,5"/>
 
-                <Button Grid.Row="0" Grid.Column="4" Content="工作时间设置" x:Name="btnWorkTimeSettings" 
-                       Click="BtnWorkTimeSettings_Click" Margin="0,0,10,5"/>
-                <TextBlock Grid.Row="0" Grid.Column="5" x:Name="txtPlcInfo" Text="" 
-                          VerticalAlignment="Center" Margin="0,0,0,5"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="当天计划总产量:" VerticalAlignment="Center" Margin="0,5,10,0"/>
-                <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtPlanTotalOutput" Text="3400" Margin="0,5,400,0"/>
+                <TextBlock Grid.Row="0" 
+                          Grid.Column="2" 
+                          Text="PLC地址:" 
+                          VerticalAlignment="Center" 
+                          Margin="0,0,10,5"/>
 
-                <TextBlock Grid.Row="1" Grid.Column="2" Text="有效工作时间:" VerticalAlignment="Center" Margin="0,5,10,0"/>
-                <TextBlock Grid.Row="1" Grid.Column="3" x:Name="txtEffectiveWorkTime" Text="10小时" VerticalAlignment="Center" Margin="0,5,20,0"/>
+                <TextBlock Grid.Row="0" 
+                          Grid.Column="3" 
+                          x:Name="txtPlcAddress" 
+                          Text="192.168.1.30:4998" 
+                          VerticalAlignment="Center" 
+                          Margin="0,0,20,5"/>
 
-                <Button Grid.Row="1" Grid.Column="4" Content="更新计划" x:Name="btnUpdatePlan" Click="BtnUpdatePlan_Click" Margin="0,5,10,0"/>
-                <TextBlock Grid.Row="1" Grid.Column="5" x:Name="txtPlanStatus" Text="计划未更新" 
-                          VerticalAlignment="Center" Margin="0,5,0,0"/>
+                <!-- 工作时间设置按钮 -->
+                <Button Grid.Row="0" 
+                        Grid.Column="4" 
+                        Content="工作时间设置" 
+                        x:Name="btnWorkTimeSettings" 
+                        Click="BtnWorkTimeSettings_Click" 
+                        Margin="0,0,10,5"/>
+
+                <TextBlock Grid.Row="0" 
+                          Grid.Column="5" 
+                          x:Name="txtPlcInfo" 
+                          Text="" 
+                          VerticalAlignment="Center" 
+                          Margin="0,0,0,5"/>
+
+                <!-- 第1行：生产计划信息 -->
+                <TextBlock Grid.Row="1" 
+                          Grid.Column="0" 
+                          Text="当天计划总产量:" 
+                          VerticalAlignment="Center" 
+                          Margin="0,5,10,0"/>
+
+                <TextBox Grid.Row="1" 
+                         Grid.Column="1" 
+                         x:Name="txtPlanTotalOutput" 
+                         Text="3400" 
+                         Margin="0,5,20,0"/>
+
+                <TextBlock Grid.Row="1" 
+                          Grid.Column="2" 
+                          Text="有效工作时间:" 
+                          VerticalAlignment="Center" 
+                          Margin="0,5,10,0"/>
+
+                <TextBlock Grid.Row="1" 
+                          Grid.Column="3" 
+                          x:Name="txtEffectiveWorkTime" 
+                          Text="10小时" 
+                          VerticalAlignment="Center" 
+                          Margin="0,5,20,0"/>
+
+                <!-- 更新计划按钮 -->
+                <Button Grid.Row="1" 
+                        Grid.Column="4" 
+                        Content="更新计划" 
+                        x:Name="btnUpdatePlan" 
+                        Click="BtnUpdatePlan_Click" 
+                        Margin="0,5,10,0"/>
+
+                <TextBlock Grid.Row="1" 
+                          Grid.Column="5" 
+                          x:Name="txtPlanStatus" 
+                          Text="计划未更新" 
+                          VerticalAlignment="Center" 
+                          Margin="0,5,0,0"/>
             </Grid>
         </GroupBox>
-        <Grid Grid.Row="5" Grid.ColumnSpan="3" Margin="0,0,0,15">
+
+        <!-- 生产数据展示区域 - 使用Grid替代StackPanel实现均匀分布 -->
+        <Grid Grid.Row="5" 
+              Grid.ColumnSpan="3" 
+              Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
+                <!-- 左侧数据列 -->
                 <ColumnDefinition Width="10"/>
+                <!-- 间隔 -->
                 <ColumnDefinition Width="*"/>
+                <!-- 右侧数据列 -->
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0">
-                <Border Background="#1976D2" CornerRadius="5" Padding="20" Margin="0,0,0,10" >
+
+            <!-- 左侧数据面板 - 使用Grid实现均匀分布 -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- 当天计划总产量 -->
+                <Border Grid.Row="0"
+                        Background="#1976D2" 
+                        CornerRadius="5" 
+                        Padding="10">
                     <StackPanel>
-                        <TextBlock Text="当天计划总产量" FontSize="30" FontWeight="SemiBold"/>
-                        <TextBlock Text="Total output of today" FontSize="30" Opacity="0.8" Margin="0,0,0,5"/>
-                        <TextBlock x:Name="txtTotalOutput" Text="0" FontSize="50" FontWeight="Bold" Foreground="Yellow"
-                                  HorizontalAlignment="Center" Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Border>
-                <Border Background="#1976D2" CornerRadius="5" Padding="20" Margin="0,0,0,10">
-                    <StackPanel>
-                        <TextBlock Text="平均线小时目标产量" FontSize="30" FontWeight="SemiBold"/>
-                        <TextBlock Text="The average UPH" FontSize="30" Opacity="0.8" Margin="0,0,0,5"/>
-                        <TextBlock x:Name="txtAverageUPH" Text="0" FontSize="50" FontWeight="Bold" Foreground="Yellow"
-                                  HorizontalAlignment="Center" Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Border>
-                <Border Background="#1976D2" CornerRadius="5" Padding="20" Margin="0,0,0,10">
-                    <StackPanel>
-                        <TextBlock Text="平均实际线小时产量" FontSize="30" FontWeight="SemiBold"/>
-                        <TextBlock Text="The actual UPH" FontSize="30" Opacity="0.8" Margin="0,0,0,5"/>
-                        <TextBlock x:Name="txtActualUPH" Text="0" FontSize="50" FontWeight="Bold" Foreground="Red"
-                                  HorizontalAlignment="Center" Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-            <StackPanel Grid.Column="2">
-                <Border  Background="#1976D2" CornerRadius="5" Padding="20" Margin="0,0,0,10">
-                    <StackPanel>
-                        <TextBlock Text="当前累计到达量" FontSize="30" FontWeight="SemiBold"/>
-                        <TextBlock Text="Now total Output" FontSize="30" Opacity="0.8" Margin="0,0,0,5"/>
-                        <TextBlock x:Name="txtCumulativeOutput" Text="0" FontSize="50" FontWeight="Bold" Foreground="Red"
-                         HorizontalAlignment="Center" Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Border>
-                <Border Background="#1976D2" CornerRadius="5" Padding="20" Margin="0,0,0,10">
-                    <StackPanel>
-                        <TextBlock Text="上小时实际产量" FontSize="30" FontWeight="SemiBold" />
-                        <TextBlock Text="Last hour UPH" FontSize="30" Opacity="0.8" Margin="0,0,0,5"/>
-                        <TextBlock x:Name="txtLastHourUPH" Text="0" FontSize="50" FontWeight="Bold" Foreground="Red"
-                                  HorizontalAlignment="Center" Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Border>
-                <Border Background="#1976D2" CornerRadius="5" Padding="20" Margin="0,0,0,10" >
-                    <StackPanel>
-                        <TextBlock Text="本小时实际产量" FontSize="30" FontWeight="SemiBold" />
-                        <TextBlock Text="This hour UPH" FontSize="30" Opacity="0.8" Margin="0,0,0,5"/>
-                        <TextBlock x:Name="txtThisHourUPH" Text="0" FontSize="50" FontWeight="Bold" Foreground="Red"
-                                  HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                        <TextBlock Text="当天计划总产量" 
+                                  FontSize="24" 
+                                  FontWeight="SemiBold"/>
+                        <TextBlock Text="Total output of today" 
+                                  FontSize="20" 
+                                  Opacity="0.8" 
+                                  Margin="0,0,0,5"/>
+                        <TextBlock x:Name="txtTotalOutput" 
+                                  Text="0" 
+                                  FontSize="40" 
+                                  FontWeight="Bold" 
+                                  Foreground="Yellow"
+                                  HorizontalAlignment="Center" 
+                                  Margin="0,5,0,0"/>
                     </StackPanel>
                 </Border>
 
-            </StackPanel>
+                <!-- 平均线小时目标产量 -->
+                <Border Grid.Row="2"
+                        Background="#1976D2" 
+                        CornerRadius="5" 
+                        Padding="10">
+                    <StackPanel>
+                        <TextBlock Text="平均线小时目标产量" 
+                                  FontSize="24" 
+                                  FontWeight="SemiBold"/>
+                        <TextBlock Text="The average UPH" 
+                                  FontSize="20" 
+                                  Opacity="0.8" 
+                                  Margin="0,0,0,5"/>
+                        <TextBlock x:Name="txtAverageUPH" 
+                                  Text="0" 
+                                  FontSize="40" 
+                                  FontWeight="Bold" 
+                                  Foreground="Yellow"
+                                  HorizontalAlignment="Center" 
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 平均实际线小时产量 -->
+                <Border Grid.Row="4"
+                        Background="#1976D2" 
+                        CornerRadius="5" 
+                        Padding="10">
+                    <StackPanel>
+                        <TextBlock Text="平均实际线小时产量" 
+                                  FontSize="24" 
+                                  FontWeight="SemiBold"/>
+                        <TextBlock Text="The actual UPH" 
+                                  FontSize="20" 
+                                  Opacity="0.8" 
+                                  Margin="0,0,0,5"/>
+                        <TextBlock x:Name="txtActualUPH" 
+                                  Text="0" 
+                                  FontSize="40" 
+                                  FontWeight="Bold" 
+                                  Foreground="Red"
+                                  HorizontalAlignment="Center" 
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- 右侧数据面板 - 使用Grid实现均匀分布 -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- 当前累计到达量 -->
+                <Border Grid.Row="0"
+                        Background="#1976D2" 
+                        CornerRadius="5" 
+                        Padding="10">
+                    <StackPanel>
+                        <TextBlock Text="当前累计到达量" 
+                                  FontSize="24" 
+                                  FontWeight="SemiBold"/>
+                        <TextBlock Text="Now total Output" 
+                                  FontSize="20" 
+                                  Opacity="0.8" 
+                                  Margin="0,0,0,5"/>
+                        <TextBlock x:Name="txtCumulativeOutput" 
+                                  Text="0" 
+                                  FontSize="40" 
+                                  FontWeight="Bold" 
+                                  Foreground="Red"
+                                  HorizontalAlignment="Center" 
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 上小时实际产量 -->
+                <Border Grid.Row="2"
+                        Background="#1976D2" 
+                        CornerRadius="5" 
+                        Padding="10">
+                    <StackPanel>
+                        <TextBlock Text="上小时实际产量" 
+                                  FontSize="24" 
+                                  FontWeight="SemiBold"/>
+                        <TextBlock Text="Last hour UPH" 
+                                  FontSize="20" 
+                                  Opacity="0.8" 
+                                  Margin="0,0,0,5"/>
+                        <TextBlock x:Name="txtLastHourUPH" 
+                                  Text="0" 
+                                  FontSize="40" 
+                                  FontWeight="Bold" 
+                                  Foreground="Red"
+                                  HorizontalAlignment="Center" 
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 本小时实际产量 -->
+                <Border Grid.Row="4"
+                        Background="#1976D2" 
+                        CornerRadius="5" 
+                        Padding="10">
+                    <StackPanel>
+                        <TextBlock Text="本小时实际产量" 
+                                  FontSize="24" 
+                                  FontWeight="SemiBold"/>
+                        <TextBlock Text="This hour UPH" 
+                                  FontSize="20" 
+                                  Opacity="0.8" 
+                                  Margin="0,0,0,5"/>
+                        <TextBlock x:Name="txtThisHourUPH" 
+                                  Text="0" 
+                                  FontSize="40" 
+                                  FontWeight="Bold" 
+                                  Foreground="Red"
+                                  HorizontalAlignment="Center" 
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
-        <TextBlock Grid.Row="7" Grid.ColumnSpan="3" x:Name="txtStatus" 
-                   FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,10"
-                   Text="等待连接PLC..."/>
-        <Border Grid.Row="8" Grid.ColumnSpan="3" Background="Transparent" 
-                Padding="10" Margin="0,10,0,0">
+
+        <!-- 状态信息显示 -->
+        <TextBlock Grid.Row="6" 
+                  Grid.ColumnSpan="3" 
+                  x:Name="txtStatus" 
+                  FontSize="12" 
+                  HorizontalAlignment="Center" 
+                  Margin="0,0,0,10"
+                  Text="等待连接PLC..."/>
+
+        <!-- 操作按钮区域 -->
+        <Border Grid.Row="7" 
+                Grid.ColumnSpan="3" 
+                Background="Transparent" 
+                Padding="10" 
+                Margin="0,10,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <!-- 左侧空白 -->
                     <ColumnDefinition Width="Auto"/>
+                    <!-- 开始监控按钮 -->
                     <ColumnDefinition Width="Auto"/>
+                    <!-- 停止监控按钮 -->
                     <ColumnDefinition Width="Auto"/>
+                    <!-- 手动刷新按钮 -->
                     <ColumnDefinition Width="*"/>
+                    <!-- 右侧空白 -->
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="1" Content="开始监控" x:Name="btnStart" 
-                       Click="BtnStart_Click" MinWidth="120"/>
-                <Button Grid.Column="2" Content="停止监控" x:Name="btnStop" 
-                       Click="BtnStop_Click" MinWidth="120"/>
-                <Button Grid.Column="3" Content="手动刷新" x:Name="btnRefresh" 
-                       Click="BtnRefresh_Click" MinWidth="120"/>
+                <!-- 控制按钮 -->
+                <Button Grid.Column="1" 
+                        Content="开始监控" 
+                        x:Name="btnStart" 
+                        Click="BtnStart_Click" 
+                        MinWidth="120"/>
+                <Button Grid.Column="2" 
+                        Content="停止监控" 
+                        x:Name="btnStop" 
+                        Click="BtnStop_Click" 
+                        MinWidth="120"/>
+                <Button Grid.Column="3" 
+                        Content="手动刷新" 
+                        x:Name="btnRefresh" 
+                        Click="BtnRefresh_Click" 
+                        MinWidth="120"/>
             </Grid>
         </Border>
     </Grid>
