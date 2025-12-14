@@ -5,12 +5,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
         Title="工作时间设置" 
-        Height="380" Width="420"
-        WindowStartupLocation="CenterOwner"
-        MinHeight="350" MinWidth="400"
-        Background="#0D47A1"
+        Height="460" Width="450"  
+    WindowStartupLocation="CenterOwner"
+        MinHeight="400" MinWidth="420"
+    Background="#0D47A1"
         WindowStyle="SingleBorderWindow"
-        ResizeMode="CanResizeWithGrip">
+        ResizeMode="CanResizeWithGrip"
+        SizeToContent="Height">
+    <!-- 自动调整高度适应内容 -->
 
     <Window.Resources>
         <!-- 颜色资源 -->
@@ -19,6 +21,7 @@
         <SolidColorBrush x:Key="AccentColor" Color="#2196F3"/>
         <SolidColorBrush x:Key="TextColor" Color="White"/>
         <SolidColorBrush x:Key="ErrorColor" Color="#FF5252"/>
+        <SolidColorBrush x:Key="InfoBgColor" Color="#1565C0"/>
 
         <!-- 文本样式 -->
         <Style TargetType="TextBlock">
@@ -34,7 +37,8 @@
         </Style>
 
         <Style x:Key="LabelTextStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
-            <Setter Property="Width" Value="100"/>
+            <Setter Property="Width" Value="110"/>
+            <!-- 增加了标签宽度 -->
             <Setter Property="Margin" Value="0,0,10,0"/>
         </Style>
 
@@ -49,29 +53,27 @@
             <Setter Property="Foreground" Value="#333333"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="#BDBDBD"/>
-            <Setter Property="Width" Value="35"/>
-            <Setter Property="Margin" Value="2,0"/>
-            <Style.Triggers>
-                <Trigger Property="Validation.HasError" Value="true">
-                    <Setter Property="BorderBrush" Value="{StaticResource ErrorColor}"/>
-                    <Setter Property="ToolTip" 
-                            Value="{Binding RelativeSource={RelativeSource Self}, 
-                                   Path=(Validation.Errors)[0].ErrorContent}"/>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="Width" Value="45"/>
+            <!-- 增加了文本框宽度 -->
+            <Setter Property="Height" Value="28"/>
+            <!-- 增加了文本框高度 -->
+            <Setter Property="Margin" Value="5,0"/>
         </Style>
 
         <!-- 按钮样式 -->
         <Style TargetType="Button">
             <Setter Property="FontFamily" Value="Microsoft YaHei"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Padding" Value="20,8"/>
             <Setter Property="Background" Value="{StaticResource SecondaryColor}"/>
             <Setter Property="Foreground" Value="{StaticResource TextColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="MinWidth" Value="80"/>
-            <Setter Property="Margin" Value="10,0,0,0"/>
+            <Setter Property="MinWidth" Value="100"/>
+            <!-- 增加了按钮最小宽度 -->
+            <Setter Property="Height" Value="35"/>
+            <!-- 增加了按钮高度 -->
+            <Setter Property="Margin" Value="15,0,0,0"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{StaticResource AccentColor}"/>
@@ -86,34 +88,20 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
-        <!-- 验证规则 -->
-        <Style x:Key="TimeValidationRule" TargetType="TextBox">
-            <Setter Property="Validation.ErrorTemplate">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <DockPanel>
-                            <Border BorderBrush="Red" BorderThickness="1">
-                                <AdornedElementPlaceholder/>
-                            </Border>
-                            <TextBlock Foreground="Red" FontSize="12" Margin="5,0,0,0" 
-                                       Text="{Binding ElementName=ErrorText, Path=Text}"/>
-                        </DockPanel>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </Window.Resources>
 
-    <Grid Margin="20">
+    <Grid Margin="20,15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="*" MinHeight="120"/>
+            <!-- 为信息区域设置最小高度 -->
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
+            <!-- 底部留白 -->
         </Grid.RowDefinitions>
 
         <!-- 标题 -->
@@ -122,7 +110,8 @@
                    Margin="0,0,0,20"/>
 
         <!-- 时间设置区域 -->
-        <Border Grid.Row="1" BorderBrush="#1E88E5" BorderThickness="0,0,0,1" Padding="0,0,0,10" Margin="0,0,0,15">
+        <Border Grid.Row="1" BorderBrush="#1E88E5" BorderThickness="0,0,0,1" 
+                Padding="0,0,0,15" Margin="0,0,0,15">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -132,36 +121,36 @@
                 </Grid.RowDefinitions>
 
                 <!-- 工作开始时间 -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
                     <TextBlock Text="工作开始时间:" Style="{StaticResource LabelTextStyle}"/>
                     <TextBox x:Name="txtStartHour" Text="8" 
                              PreviewTextInput="NumberValidationTextBox"/>
-                    <TextBlock Text="时" Margin="2,0,15,0"/>
+                    <TextBlock Text="时" Margin="5,0,20,0"/>
                     <TextBox x:Name="txtStartMinute" Text="00" 
                              PreviewTextInput="NumberValidationTextBox"/>
-                    <TextBlock Text="分"/>
+                    <TextBlock Text="分" Margin="5,0,0,0"/>
                 </StackPanel>
 
                 <!-- 工作结束时间 -->
-                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,15">
                     <TextBlock Text="工作结束时间:" Style="{StaticResource LabelTextStyle}"/>
                     <TextBox x:Name="txtEndHour" Text="18" 
                              PreviewTextInput="NumberValidationTextBox"/>
-                    <TextBlock Text="时" Margin="2,0,15,0"/>
+                    <TextBlock Text="时" Margin="5,0,20,0"/>
                     <TextBox x:Name="txtEndMinute" Text="00" 
                              PreviewTextInput="NumberValidationTextBox"/>
-                    <TextBlock Text="分"/>
+                    <TextBlock Text="分" Margin="5,0,0,0"/>
                 </StackPanel>
 
                 <!-- 午休开始时间 -->
-                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,10">
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,15">
                     <TextBlock Text="午休开始时间:" Style="{StaticResource LabelTextStyle}"/>
                     <TextBox x:Name="txtLunchStartHour" Text="12" 
                              PreviewTextInput="NumberValidationTextBox"/>
-                    <TextBlock Text="时" Margin="2,0,15,0"/>
+                    <TextBlock Text="时" Margin="5,0,20,0"/>
                     <TextBox x:Name="txtLunchStartMinute" Text="00" 
                              PreviewTextInput="NumberValidationTextBox"/>
-                    <TextBlock Text="分"/>
+                    <TextBlock Text="分" Margin="5,0,0,0"/>
                 </StackPanel>
 
                 <!-- 午休结束时间 -->
@@ -169,28 +158,34 @@
                     <TextBlock Text="午休结束时间:" Style="{StaticResource LabelTextStyle}"/>
                     <TextBox x:Name="txtLunchEndHour" Text="13" 
                              PreviewTextInput="NumberValidationTextBox"/>
-                    <TextBlock Text="时" Margin="2,0,15,0"/>
+                    <TextBlock Text="时" Margin="5,0,20,0"/>
                     <TextBox x:Name="txtLunchEndMinute" Text="00" 
                              PreviewTextInput="NumberValidationTextBox"/>
-                    <TextBlock Text="分"/>
+                    <TextBlock Text="分" Margin="5,0,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>
 
         <!-- 工作时间信息 -->
-        <Border Grid.Row="5" Background="#1565C0" CornerRadius="5" Padding="15" Margin="0,10,0,20">
+        <Border Grid.Row="5" Background="{StaticResource InfoBgColor}" 
+                CornerRadius="5" Padding="15" Margin="0,10,0,15">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="工作时间信息" FontWeight="Bold" Margin="0,0,0,8"/>
-                <TextBlock x:Name="txtWorkTimeInfo" Grid.Row="1" FontSize="12" TextWrapping="Wrap"/>
+                <TextBlock Grid.Row="0" Text="工作时间信息" 
+                           FontWeight="Bold" Margin="0,0,0,8"/>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <TextBlock x:Name="txtWorkTimeInfo" FontSize="12" 
+                               TextWrapping="Wrap" MinHeight="60"/>
+                </ScrollViewer>
             </Grid>
         </Border>
 
         <!-- 按钮区域 -->
-        <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right">
+        <StackPanel Grid.Row="6" Orientation="Horizontal" 
+                    HorizontalAlignment="Center" Margin="0,10,0,0">
             <Button Content="保存设置" Click="BtnSave_Click" IsDefault="True"/>
             <Button Content="取消" Click="BtnCancel_Click" IsCancel="True"/>
         </StackPanel>
