@@ -484,11 +484,28 @@ namespace MideaProductionBoard
                     // 基准高度为915像素（窗口默认高度）
                     double scaleFactor = windowHeight / 915.0;
 
+                    // 对于全屏显示，更积极地放大字体
+                    // 全屏时（假设1920x1080，窗口高度约1000像素），scaleFactor约为1.1
+                    // 为了让字体更大，我们增加放大系数
+                    if (scaleFactor > 1.0)
+                    {
+                        // 当窗口放大时，字体放大的更明显
+                        scaleFactor = 1.0 + (scaleFactor - 1.0) * 2.0; // 增加放大系数到2.0
+                    }
+                    else if (scaleFactor < 1.0)
+                    {
+                        // 当窗口缩小时，字体缩小幅度减小
+                        scaleFactor = 1.0 - (1.0 - scaleFactor) * 0.5;
+                    }
+
                     // 限制最小和最大缩放比例
-                    scaleFactor = Math.Max(0.8, Math.Min(scaleFactor, 2.0));
+                    scaleFactor = Math.Max(0.7, Math.Min(scaleFactor, 2.0));
 
                     // 返回缩放后的字体大小
-                    return baseSize * scaleFactor;
+                    double finalSize = baseSize * scaleFactor;
+
+                    // 确保字体大小不会太小（最小12像素）
+                    return Math.Max(12, finalSize);
                 }
             }
             return 16; // 默认值
