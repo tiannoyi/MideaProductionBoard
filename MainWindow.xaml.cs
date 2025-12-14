@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Threading;
-using System.Globalization;
 using HslCommunication;
 using HslCommunication.Profinet.Melsec;
 
@@ -25,8 +24,9 @@ namespace MideaProductionBoard
         private const string PLC_IP = "192.168.1.30";
         private const int PLC_PORT = 4998;
         private const string PLC_REGISTER = "D2600";
-        private int planTotalOutput = 3400; // 默认值与XAML中的txtPlanTotalOutput.Text一致
+        private int planTotalOutput = 3400;
         private WorkTimeInfo workTime = new WorkTimeInfo();
+        private DispatcherTimer workStatusTimer; // 新增：工作状态检查定时器
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -58,6 +58,9 @@ namespace MideaProductionBoard
             UpdateDisplay();
             StartAutoConnect();
 
+            // 初始化工作状态检查定时器
+            InitializeWorkStatusTimer();
+
             // 添加窗口大小变化事件处理
             this.SizeChanged += MainWindow_SizeChanged;
         }
@@ -65,13 +68,43 @@ namespace MideaProductionBoard
         // 窗口大小变化事件处理
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            // 窗口大小变化时，强制更新布局，让字体大小重新计算
             this.UpdateLayout();
         }
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        // 初始化工作状态检查定时器
+        private void InitializeWorkStatusTimer()
+        {
+            workStatusTimer = new DispatcherTimer();
+            workStatusTimer.Interval = TimeSpan.FromSeconds(30); // 每30秒检查一次
+            workStatusTimer.Tick += WorkStatusTimer_Tick;
+            workStatusTimer.Start();
+        }
+
+        private void WorkStatusTimer_Tick(object sender, EventArgs e)
+        {
+            // 检查当前是否在休息时间，并更新状态
+            CheckWorkTimeStatus();
+        }
+
+        private void CheckWorkTimeStatus()
+        {
+            // 这里可以添加逻辑来检查当前是否在休息时间
+            // 例如，可以在状态栏显示信息
+            bool isInRestTime = workTime.IsInRestTime(DateTime.Now);
+            if (isInRestTime)
+            {
+                string restDescription = workTime.GetCurrentRestTimeDescription(DateTime.Now);
+                if (!string.IsNullOrEmpty(restDescription))
+                {
+                    // 可以选择在状态栏显示休息信息
+                    // ShowStatus(restDescription);
+                }
+            }
         }
 
         private void InitializePlc()
@@ -273,7 +306,7 @@ namespace MideaProductionBoard
                         txtThisHourUPH.Text = currentHourOutput.ToString();
                         txtLastHourUPH.Text = lastHourOutput.ToString();
 
-                        // 计算实际UPH
+                        // 计算实际UPH（支持多个休息时间）
                         CalculateActualUPH(cumulativeOutput);
 
                         ShowStatus($"数据更新成功 - {DateTime.Now:HH:mm:ss}");
@@ -292,6 +325,7 @@ namespace MideaProductionBoard
             }
         }
 
+        // 修改：支持多个休息时间的CalculateActualUPH方法
         private void CalculateActualUPH(int cumulativeOutput)
         {
             try
@@ -301,10 +335,6 @@ namespace MideaProductionBoard
                                                 workTime.StartHour, workTime.StartMinute, 0);
                 DateTime endTime = new DateTime(currentTime.Year, currentTime.Month, currentTime.Day,
                                               workTime.EndHour, workTime.EndMinute, 0);
-                DateTime lunchStartTime = new DateTime(currentTime.Year, currentTime.Month, currentTime.Day,
-                                                     workTime.LunchStartHour, workTime.LunchStartMinute, 0);
-                DateTime lunchEndTime = new DateTime(currentTime.Year, currentTime.Month, currentTime.Day,
-                                                   workTime.LunchEndHour, workTime.LunchEndMinute, 0);
 
                 // 如果当前时间不在工作时间内，则实际UPH为0
                 if (currentTime < startTime || currentTime > endTime)
@@ -313,17 +343,32 @@ namespace MideaProductionBoard
                     return;
                 }
 
-                // 计算已工作时间
+                // 计算已工作时间（从开始时间到现在）
                 TimeSpan workedTime = currentTime - startTime;
 
-                // 减去午休时间
-                if (currentTime > lunchEndTime)
+                // 减去所有已经过去或正在进行的休息时间
+                foreach (var rest in workTime.RestTimes)
                 {
-                    workedTime -= (lunchEndTime - lunchStartTime);
-                }
-                else if (currentTime > lunchStartTime)
-                {
-                    workedTime -= (currentTime - lunchStartTime);
+                    DateTime restStart = new DateTime(currentTime.Year, currentTime.Month, currentTime.Day,
+                                                    rest.StartHour, rest.StartMinute, 0);
+                    DateTime restEnd = new DateTime(currentTime.Year, currentTime.Month, currentTime.Day,
+                                                  rest.EndHour, rest.EndMinute, 0);
+
+                    // 如果休息时间在当前时间之前已经完全过去
+                    if (currentTime > restEnd)
+                    {
+                        // 减去整个休息时间段
+                        TimeSpan restDuration = restEnd - restStart;
+                        workedTime -= restDuration;
+                    }
+                    // 如果当前时间在休息时间内
+                    else if (currentTime >= restStart && currentTime <= restEnd)
+                    {
+                        // 减去从休息开始到当前时间的时间段
+                        TimeSpan restSoFar = currentTime - restStart;
+                        workedTime -= restSoFar;
+                    }
+                    // 如果休息时间还没开始，不做处理
                 }
 
                 double workedHours = workedTime.TotalHours;
@@ -344,6 +389,7 @@ namespace MideaProductionBoard
             }
         }
 
+        // 修改：支持多个休息时间的UpdateDisplay方法
         private void UpdateDisplay()
         {
             Dispatcher.Invoke(() =>
@@ -351,21 +397,35 @@ namespace MideaProductionBoard
                 // 更新计划总产量
                 txtTotalOutput.Text = planTotalOutput.ToString();
 
-                // 计算平均UPH
+                // 计算有效工作时间和平均UPH
                 DateTime startTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
                                                 workTime.StartHour, workTime.StartMinute, 0);
                 DateTime endTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
                                               workTime.EndHour, workTime.EndMinute, 0);
-                DateTime lunchStartTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
-                                                     workTime.LunchStartHour, workTime.LunchStartMinute, 0);
-                DateTime lunchEndTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
-                                                   workTime.LunchEndHour, workTime.LunchEndMinute, 0);
 
-                TimeSpan workDuration = endTime - startTime - (lunchEndTime - lunchStartTime);
-                int averageUPH = workDuration.TotalHours > 0 ? (int)(planTotalOutput / workDuration.TotalHours) : 0;
+                // 计算总工作时间
+                TimeSpan totalWorkDuration = endTime - startTime;
+
+                // 计算总休息时间
+                TimeSpan totalRestDuration = TimeSpan.Zero;
+                foreach (var rest in workTime.RestTimes)
+                {
+                    DateTime restStart = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
+                                                    rest.StartHour, rest.StartMinute, 0);
+                    DateTime restEnd = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
+                                                  rest.EndHour, rest.EndMinute, 0);
+                    totalRestDuration += (restEnd - restStart);
+                }
+
+                // 计算净工作时间
+                TimeSpan netWorkDuration = totalWorkDuration - totalRestDuration;
+                double netWorkHours = netWorkDuration.TotalHours;
+
+                // 计算平均UPH
+                int averageUPH = netWorkHours > 0 ? (int)(planTotalOutput / netWorkHours) : 0;
 
                 txtAverageUPH.Text = averageUPH.ToString();
-                txtEffectiveWorkTime.Text = $"{workDuration.TotalHours:F1}小时";
+                txtEffectiveWorkTime.Text = $"{netWorkHours:F1}小时";
             });
         }
 
@@ -384,7 +444,8 @@ namespace MideaProductionBoard
             {
                 workTime = settingsWindow.WorkTime;
                 UpdateDisplay();
-                ShowStatus("工作时间设置已更新");
+                CheckWorkTimeStatus(); // 更新工作状态
+                ShowStatus($"工作时间设置已更新，共 {workTime.RestTimes.Count} 个休息时间段");
             }
         }
 
@@ -456,7 +517,6 @@ namespace MideaProductionBoard
         // XAML中绑定的Window_SizeChanged事件处理程序
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            // 窗口大小变化时，强制更新布局，让字体大小重新计算
             this.UpdateLayout();
         }
 
@@ -466,6 +526,7 @@ namespace MideaProductionBoard
             clockTimer?.Stop();
             reconnectTimer?.Stop();
             blinkTimer?.Stop();
+            workStatusTimer?.Stop(); // 停止工作状态检查定时器
             plc?.ConnectClose();
             base.OnClosed(e);
         }
