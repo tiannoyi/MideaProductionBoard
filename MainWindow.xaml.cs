@@ -28,6 +28,14 @@ namespace MideaProductionBoard
         private WorkTimeInfo workTime = new WorkTimeInfo();
         private DispatcherTimer workStatusTimer; // 新增：工作状态检查定时器
 
+        private int reconnectAttempts = 0;
+        private const int MAX_RECONNECT_ATTEMPTS = 5;
+        private const int RECONNECT_BASE_INTERVAL = 5; // 5秒基础间隔
+
+        // 添加属性保存最后连接时间
+        private DateTime lastSuccessfulConnection = DateTime.MinValue;
+
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public string CurrentDate => DateTime.Now.ToString("yyyy年MM月dd日 dddd");
@@ -192,16 +200,76 @@ namespace MideaProductionBoard
 
         private void StartAutoConnect()
         {
-            reconnectTimer.Start();
+            // 先停止所有定时器
+            reconnectTimer?.Stop();
+            blinkTimer?.Stop();
+
+            // 初始化PLC连接
+            InitializePlc();
+
+            // 开始闪烁
             blinkTimer.Start();
-            ConnectToPlc();
+
+            // 延迟3秒开始首次连接（给UI加载时间）
+            Task.Delay(3000).ContinueWith(t =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    ConnectToPlc();
+                    reconnectTimer.Start();
+                });
+            });
         }
 
         private void ReconnectTimer_Tick(object sender, EventArgs e)
         {
-            if (!IsPlcConnected)
+            try
             {
-                ConnectToPlc();
+                if (!IsPlcConnected)
+                {
+                    reconnectAttempts++;
+                    ShowStatus($"尝试第{reconnectAttempts}次重连...");
+
+                    // 先断开旧连接
+                    if (plc != null)
+                    {
+                        plc.ConnectClose();
+                        plc = null;
+                    }
+
+                    // 等待一小段时间再连接
+                    Thread.Sleep(500);
+                    ConnectToPlc();
+
+                    if (IsPlcConnected)
+                    {
+                        reconnectAttempts = 0;
+                        ShowStatus("重连成功");
+
+                        // 如果之前正在监控，重新开始监控
+                        if (isMonitoring)
+                        {
+                            dataTimer.Start();
+                        }
+                    }
+                    else
+                    {
+                        // 失败时动态调整重连间隔：5, 10, 20, 30, 30秒
+                        int delaySeconds = reconnectAttempts <= 3 ?
+                            RECONNECT_BASE_INTERVAL * reconnectAttempts : 30;
+
+                        ShowStatus($"重连失败，{delaySeconds}秒后再次尝试");
+                        reconnectTimer.Stop();
+                        Task.Delay(delaySeconds * 1000).ContinueWith(t =>
+                        {
+                            Dispatcher.Invoke(() => reconnectTimer.Start());
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowStatus($"重连异常: {ex.Message}");
             }
         }
 
@@ -209,30 +277,42 @@ namespace MideaProductionBoard
         {
             try
             {
-                if (plc == null)
+                // 清理旧连接
+                if (plc != null)
                 {
-                    InitializePlc();
+                    plc.ConnectClose();
+                    plc = null;
                 }
 
-                OperateResult connectResult = plc.ConnectServer();
-                if (connectResult.IsSuccess)
+                InitializePlc();
+
+                if (plc != null)
                 {
-                    IsPlcConnected = true;
-                    Dispatcher.Invoke(() =>
+                    // 测试连接
+                    //var testResult = plc.ReadInt32(PLC_REGISTER, 1); // 只读1个
+                    var testResult = plc.ReadInt16(PLC_REGISTER);
+                    if (testResult.IsSuccess)
                     {
-                        txtConnectionStatus.Text = "已连接";
-                        txtConnectionStatus.Foreground = System.Windows.Media.Brushes.LightGreen;
-                    });
-                    ShowStatus("PLC连接成功");
+                        IsPlcConnected = true;
+                        lastSuccessfulConnection = DateTime.Now;
+                        reconnectAttempts = 0;
 
-                    // 连接成功后立即读取一次数据
-                    ReadPlcData();
+                        Dispatcher.Invoke(() =>
+                        {
+                            txtConnectionStatus.Text = "已连接";
+                            txtConnectionStatus.Foreground = System.Windows.Media.Brushes.LightGreen;
+                            borderPlcStatus.Opacity = 1.0;
+                        });
+                        ShowStatus("PLC连接成功");
+
+                        // 连接成功后读取完整数据
+                        ReadPlcData();
+                        return;
+                    }
                 }
-                else
-                {
-                    IsPlcConnected = false;
-                    ShowStatus($"PLC连接失败: {connectResult.Message}");
-                }
+
+                IsPlcConnected = false;
+                ShowStatus("PLC连接失败");
             }
             catch (Exception ex)
             {
@@ -314,14 +394,29 @@ namespace MideaProductionBoard
                 }
                 else
                 {
+                    // 读取失败时标记为未连接
                     IsPlcConnected = false;
                     Dispatcher.Invoke(() => ShowStatus($"读取PLC数据失败: {result.Message}"));
+
+                    // 停止数据定时器，等待重连
+                    if (dataTimer.IsEnabled)
+                    {
+                        dataTimer.Stop();
+                    }
                 }
+            }
+            catch (System.Net.Sockets.SocketException sockEx)
+            {
+                // 网络异常
+                IsPlcConnected = false;
+                Dispatcher.Invoke(() => ShowStatus($"网络异常: {sockEx.Message}"));
+                dataTimer.Stop();
             }
             catch (Exception ex)
             {
                 IsPlcConnected = false;
                 Dispatcher.Invoke(() => ShowStatus($"读取数据异常: {ex.Message}"));
+                dataTimer.Stop();
             }
         }
 
