@@ -1,15 +1,21 @@
-﻿using System;
+﻿//using HslCommunication;
+//using HslCommunication.Profinet.Melsec;
+using IoTClient;
+using IoTClient.Clients.PLC;
+using IoTClient.Enums;
+using System;
 using System.ComponentModel;
+using System.Net.Sockets;
 using System.Windows;
 using System.Windows.Threading;
-using HslCommunication;
-using HslCommunication.Profinet.Melsec;
 
 namespace MideaProductionBoard
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private MelsecMcNet plc;
+        //private MelsecMcNet plc;
+        private MitsubishiClient plc;
+
         private DispatcherTimer dataTimer;
         private DispatcherTimer clockTimer;
         private DispatcherTimer reconnectTimer;
@@ -119,9 +125,10 @@ namespace MideaProductionBoard
         {
             try
             {
-                plc = new MelsecMcNet(PLC_IP, PLC_PORT);
-                plc.ConnectTimeOut = 3000;
-                plc.ReceiveTimeOut = 3000;
+                //plc = new MelsecMcNet(PLC_IP, PLC_PORT);
+                //plc.ConnectTimeOut = 3000;
+                //plc.ReceiveTimeOut = 3000;
+                plc = new MitsubishiClient(MitsubishiVersion.Qna_3E, PLC_IP, PLC_PORT,3000);
             }
             catch (Exception ex)
             {
@@ -148,8 +155,9 @@ namespace MideaProductionBoard
 
             try
             {
-                var testResult = plc.ReadInt32(PLC_REGISTER);
-                return testResult.IsSuccess;
+                //var testResult = plc.ReadInt16(PLC_REGISTER); // 改为 ReadInt16 测试
+                //return testResult.IsSucceed; // IoTClient 使用 IsSucceed
+                return IsPlcConnected; // 暂时依赖于我们自己的状态标志
             }
             catch
             {
@@ -233,7 +241,7 @@ namespace MideaProductionBoard
                     // 先断开旧连接
                     if (plc != null)
                     {
-                        plc.ConnectClose();
+                        plc.Close(); // IoTClient 使用 Close() 方法
                         plc = null;
                     }
 
@@ -280,7 +288,8 @@ namespace MideaProductionBoard
                 // 清理旧连接
                 if (plc != null)
                 {
-                    plc.ConnectClose();
+                    //plc.ConnectClose();
+                    plc.Close();
                     plc = null;
                 }
 
@@ -290,8 +299,9 @@ namespace MideaProductionBoard
                 {
                     // 测试连接
                     //var testResult = plc.ReadInt32(PLC_REGISTER, 1); // 只读1个
-                    var testResult = plc.ReadInt16(PLC_REGISTER);
-                    if (testResult.IsSuccess)
+                    //var testResult = plc.ReadInt16(PLC_REGISTER);
+                    var openResult = plc.Open();
+                    if (openResult.IsSucceed)
                     {
                         IsPlcConnected = true;
                         lastSuccessfulConnection = DateTime.Now;
@@ -309,10 +319,20 @@ namespace MideaProductionBoard
                         ReadPlcData();
                         return;
                     }
+                    else
+                    {
+                        IsPlcConnected = false;
+                        ShowStatus($"PLC连接失败: {openResult.Err}");
+                    }
                 }
 
                 IsPlcConnected = false;
-                ShowStatus("PLC连接失败");
+                ShowStatus("PLC初始化失败，对象为null");
+            }
+            catch (SocketException sockEx) // 注意这里使用 System.Net.Sockets.SocketException
+            {
+                IsPlcConnected = false;
+                ShowStatus($"网络连接失败: {sockEx.Message}");
             }
             catch (Exception ex)
             {
@@ -354,11 +374,12 @@ namespace MideaProductionBoard
 
             try
             {
-                var result = plc.ReadInt32(PLC_REGISTER);
-                if (result.IsSuccess)
+                //var result = plc.ReadInt32(PLC_REGISTER);
+                var result = plc.ReadInt32(PLC_REGISTER); // 注意：方法返回的是 Result<int> 对象
+                if (result.IsSucceed)
                 {
                     IsPlcConnected = true;
-                    int cumulativeOutput = result.Content;
+                    int cumulativeOutput = result.Value; // IoTClient 数据在 Value 属性
 
                     Dispatcher.Invoke(() =>
                     {
@@ -373,6 +394,9 @@ namespace MideaProductionBoard
                             lastHourOutput = currentHourOutput;
                             currentHourOutput = 0;
                             lastUpdateTime = now;
+
+                            // 显示小时切换信息
+                            ShowStatus($"小时切换: {now:HH:00}");
                         }
 
                         int outputThisPeriod = cumulativeOutput - lastCumulativeOutput;
@@ -396,7 +420,7 @@ namespace MideaProductionBoard
                 {
                     // 读取失败时标记为未连接
                     IsPlcConnected = false;
-                    Dispatcher.Invoke(() => ShowStatus($"读取PLC数据失败: {result.Message}"));
+                    Dispatcher.Invoke(() => ShowStatus($"读取PLC数据失败: {result.Response}"));
 
                     // 停止数据定时器，等待重连
                     if (dataTimer.IsEnabled)
@@ -405,7 +429,7 @@ namespace MideaProductionBoard
                     }
                 }
             }
-            catch (System.Net.Sockets.SocketException sockEx)
+            catch (SocketException sockEx) // 使用 System.Net.Sockets.SocketException
             {
                 // 网络异常
                 IsPlcConnected = false;
@@ -621,8 +645,11 @@ namespace MideaProductionBoard
             clockTimer?.Stop();
             reconnectTimer?.Stop();
             blinkTimer?.Stop();
-            workStatusTimer?.Stop(); // 停止工作状态检查定时器
-            plc?.ConnectClose();
+            workStatusTimer?.Stop();
+
+            // MitsubishiClient 使用 Close() 方法
+            plc?.Close();
+
             base.OnClosed(e);
         }
     }
