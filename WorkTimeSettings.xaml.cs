@@ -99,14 +99,14 @@ namespace MideaProductionBoard
 
                     if (!TryParseWorkTimeInputs())
                     {
-                        txtWorkTimeInfo.Text = "请输入有效的工作时间";
+                        txtWorkTimeInfo.Text = BilingualResources.EnterValidWorkTime;
                         txtWorkTimeInfo.Foreground = System.Windows.Media.Brushes.Orange;
                         return;
                     }
 
                     if (!ValidateAllRestTimes())
                     {
-                        txtWorkTimeInfo.Text = "请检查休息时间设置";
+                        txtWorkTimeInfo.Text = BilingualResources.CheckRestTimeSettings;
                         txtWorkTimeInfo.Foreground = System.Windows.Media.Brushes.Orange;
                         return;
                     }
@@ -164,7 +164,7 @@ namespace MideaProductionBoard
             DateTime endTime = DateTime.Today.AddHours(WorkTime.EndHour).AddMinutes(WorkTime.EndMinute);
 
             if (endTime <= startTime)
-                return "结束时间必须晚于开始时间";
+                return BilingualResources.EndTimeMustBeLater;
 
             // 验证每个休息时间
             foreach (var restTime in WorkTime.RestTimes)
@@ -178,11 +178,11 @@ namespace MideaProductionBoard
                     Console.WriteLine($"休息时间验证失败: Start={restTime.StartHour}:{restTime.StartMinute}, End={restTime.EndHour}:{restTime.EndMinute}");
                     Console.WriteLine($"转换为DateTime: Start={restStart:HH:mm}, End={restEnd:HH:mm}");
 
-                    return $"休息时间 {restStart:HH:mm} - {restEnd:HH:mm} 的结束时间必须晚于开始时间";
+                    return string.Format(BilingualResources.RestTimeMustBeLater, restStart.ToString("HH:mm"), restEnd.ToString("HH:mm"));
                 }
 
                 if (restStart < startTime || restEnd > endTime)
-                    return $"休息时间 {restStart:HH:mm} - {restEnd:HH:mm} 必须在工作时间内";
+                    return string.Format(BilingualResources.RestTimeWithinWork, restStart.ToString("HH:mm"), restEnd.ToString("HH:mm"));
             }
 
             // 检查休息时间之间是否有重叠
@@ -196,7 +196,9 @@ namespace MideaProductionBoard
                     DateTime rest2End = DateTime.Today.AddHours(WorkTime.RestTimes[j].EndHour).AddMinutes(WorkTime.RestTimes[j].EndMinute);
 
                     if (rest1Start < rest2End && rest2Start < rest1End)
-                        return $"休息时间 {rest1Start:HH:mm} - {rest1End:HH:mm} 与 {rest2Start:HH:mm} - {rest2End:HH:mm} 有重叠";
+                        return string.Format(BilingualResources.RestTimeOverlap,
+                                           rest1Start.ToString("HH:mm"), rest1End.ToString("HH:mm"),
+                                           rest2Start.ToString("HH:mm"), rest2End.ToString("HH:mm"));
                 }
             }
 
@@ -244,12 +246,13 @@ namespace MideaProductionBoard
             TimeSpan totalWorkDuration = endTime - startTime;
             TimeSpan totalRestDuration = TimeSpan.Zero;
 
-            string infoText = $"工作时间: {startTime:HH:mm} - {endTime:HH:mm}\n";
-            infoText += $"总工作时长: {totalWorkDuration.TotalHours:F1}小时\n\n";
+            // 构建双语信息文本
+            string infoText = string.Format(BilingualResources.WorkTimeInfoPrefix, startTime.ToString("HH:mm"), endTime.ToString("HH:mm"));
+            infoText += string.Format(BilingualResources.TotalWorkDuration, totalWorkDuration.TotalHours);
 
             if (WorkTime.RestTimes.Count > 0)
             {
-                infoText += "休息时间:\n";
+                infoText += BilingualResources.RestTimeSection;
                 int index = 1;
                 foreach (var restTime in WorkTime.RestTimes)
                 {
@@ -258,18 +261,18 @@ namespace MideaProductionBoard
                     TimeSpan restDuration = restEnd - restStart;
                     totalRestDuration += restDuration;
 
-                    infoText += $"{index}. {restStart:HH:mm} - {restEnd:HH:mm} ({restDuration.TotalHours:F1}小时)\n";
+                    infoText += $"{index}. {restStart:HH:mm} - {restEnd:HH:mm} ({restDuration.TotalHours:F1}小时 / {restDuration.TotalHours:F1} hours)\n";
                     index++;
                 }
             }
             else
             {
-                infoText += "休息时间: 无\n";
+                infoText += BilingualResources.NoRestTime;
             }
 
             TimeSpan netWorkDuration = totalWorkDuration - totalRestDuration;
-            infoText += $"\n总休息时长: {totalRestDuration.TotalHours:F1}小时\n";
-            infoText += $"净工作时长: {netWorkDuration.TotalHours:F1}小时";
+            infoText += string.Format(BilingualResources.TotalRestDuration, totalRestDuration.TotalHours);
+            infoText += string.Format(BilingualResources.NetWorkDuration, netWorkDuration.TotalHours);
 
             txtWorkTimeInfo.Text = infoText;
             txtWorkTimeInfo.Foreground = System.Windows.Media.Brushes.White;
@@ -350,28 +353,40 @@ namespace MideaProductionBoard
             // 验证工作时间
             if (!int.TryParse(txtStartHour.Text, out int startHour) || !IsValidHour(startHour))
             {
-                MessageBox.Show("请输入有效的开始小时(0-23)", "输入错误", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(BilingualResources.EnterValidHour,
+                               BilingualResources.InputErrorTitle,
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Warning);
                 txtStartHour.Focus();
                 return false;
             }
 
             if (!int.TryParse(txtStartMinute.Text, out int startMinute) || !IsValidMinute(startMinute))
             {
-                MessageBox.Show("请输入有效的开始分钟(0-59)", "输入错误", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(BilingualResources.EnterValidMinute,
+                               BilingualResources.InputErrorTitle,
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Warning);
                 txtStartMinute.Focus();
                 return false;
             }
 
             if (!int.TryParse(txtEndHour.Text, out int endHour) || !IsValidHour(endHour))
             {
-                MessageBox.Show("请输入有效的结束小时(0-23)", "输入错误", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(BilingualResources.EnterValidEndHour,
+                               BilingualResources.InputErrorTitle,
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Warning);
                 txtEndHour.Focus();
                 return false;
             }
 
             if (!int.TryParse(txtEndMinute.Text, out int endMinute) || !IsValidMinute(endMinute))
             {
-                MessageBox.Show("请输入有效的结束分钟(0-59)", "输入错误", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(BilingualResources.EnterValidEndMinute,
+                               BilingualResources.InputErrorTitle,
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Warning);
                 txtEndMinute.Focus();
                 return false;
             }
@@ -386,15 +401,19 @@ namespace MideaProductionBoard
             {
                 if (!IsValidHour(restTime.StartHour) || !IsValidMinute(restTime.StartMinute))
                 {
-                    MessageBox.Show($"休息时间开始时间无效: {restTime.StartHour}:{restTime.StartMinute}",
-                                    "输入错误", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(string.Format(BilingualResources.RestTimeStartInvalid, $"{restTime.StartHour}:{restTime.StartMinute}"),
+                                    BilingualResources.InputErrorTitle,
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Warning);
                     return false;
                 }
 
                 if (!IsValidHour(restTime.EndHour) || !IsValidMinute(restTime.EndMinute))
                 {
-                    MessageBox.Show($"休息时间结束时间无效: {restTime.EndHour}:{restTime.EndMinute}",
-                                    "输入错误", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(string.Format(BilingualResources.RestTimeEndInvalid, $"{restTime.EndHour}:{restTime.EndMinute}"),
+                                    BilingualResources.InputErrorTitle,
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Warning);
                     return false;
                 }
             }
@@ -403,8 +422,10 @@ namespace MideaProductionBoard
             string validationMessage = ValidateTimeLogic();
             if (!string.IsNullOrEmpty(validationMessage))
             {
-                MessageBox.Show(validationMessage, "时间逻辑错误",
-                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(validationMessage,
+                               BilingualResources.TimeLogicErrorTitle,
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Warning);
                 return false;
             }
 
@@ -420,6 +441,4 @@ namespace MideaProductionBoard
             e.Handled = _numberRegex.IsMatch(e.Text);
         }
     }
-
-
 }

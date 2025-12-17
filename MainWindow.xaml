@@ -41,6 +41,29 @@
             <Setter Property="MinHeight" Value="35"/>
         </Style>
 
+        <Style TargetType="TextBox" x:Key="ConfigTextBox">
+            <Setter Property="FontFamily" Value="Microsoft YaHei"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="5,8"/>
+            <Setter Property="Background" Value="#1E88E5"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="Button" x:Key="ConfigButton">
+            <Setter Property="FontFamily" Value="Microsoft YaHei"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="Background" Value="#1976D2"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="MinWidth" Value="100"/>
+        </Style>
+
         <Storyboard x:Key="BlinkAnimation" RepeatBehavior="Forever">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity">
                 <EasingDoubleKeyFrame KeyTime="0:0:0" Value="1"/>
@@ -126,14 +149,16 @@
                       Margin="0,2,0,5"/>
         </Grid>
 
+       
+
         <!-- 系统配置区域 - 更加紧凑 -->
         <GroupBox Grid.Row="1" 
-                  Grid.ColumnSpan="3" 
-                  Header="系统配置" 
-                  Foreground="White" 
-                  BorderBrush="#64B5F6" 
-                  Padding="3"
-                  Margin="0,2,0,5">
+          Grid.ColumnSpan="3" 
+          Header="系统配置 / System Configuration" 
+          Foreground="White" 
+          BorderBrush="#64B5F6" 
+          Padding="3"
+          Margin="0,2,0,5">
             <Grid Margin="3">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -151,93 +176,96 @@
 
                 <!-- 第0行：PLC连接状态信息 -->
                 <TextBlock Grid.Row="0" 
-                          Grid.Column="0" 
-                          Text="PLC连接状态:" 
-                          FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
-                          VerticalAlignment="Center" 
-                          Margin="0,0,10,5"/>
+                  Grid.Column="0" 
+                  Text="PLC连接状态 / PLC Status:" 
+                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
+                  VerticalAlignment="Center" 
+                  Margin="0,0,10,0"/>
 
                 <TextBlock Grid.Row="0" 
-                          Grid.Column="1" 
-                          x:Name="txtConnectionStatus" 
-                          Text="未连接" 
-                          FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
-                          VerticalAlignment="Center" 
-                          Margin="0,0,20,5"/>
+                  Grid.Column="1" 
+                  x:Name="txtConnectionStatus" 
+                  Text="未连接 / Disconnected" 
+                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
+                  VerticalAlignment="Center" 
+                  Margin="0,0,20,0"/>
 
                 <TextBlock Grid.Row="0" 
-                          Grid.Column="2" 
-                          Text="PLC地址:" 
-                          FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
-                          VerticalAlignment="Center" 
-                          Margin="0,0,10,5"/>
+                  Grid.Column="2" 
+                  Text="PLC地址 / PLC Address:" 
+                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
+                  VerticalAlignment="Center" 
+                  Margin="0,0,10,0"/>
 
                 <TextBlock Grid.Row="0" 
-                          Grid.Column="3" 
-                          x:Name="txtPlcAddress" 
-                          Text="192.168.1.30:4998" 
-                          FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
-                          VerticalAlignment="Center" 
-                          Margin="0,0,20,5"/>
+                  Grid.Column="3" 
+                  x:Name="txtPlcAddress" 
+                  Text="192.168.1.30:4998" 
+                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
+                  VerticalAlignment="Center" 
+                  Margin="0,0,20,0"/>
 
                 <Button Grid.Row="0" 
-                        Grid.Column="4" 
-                        Content="工作时间设置" 
-                        x:Name="btnWorkTimeSettings" 
-                        Click="BtnWorkTimeSettings_Click" 
-                        Margin="0,0,10,5"/>
+                Grid.Column="4" 
+                Content="工作时间设置 / Work Time Settings" 
+                x:Name="btnWorkTimeSettings" 
+                Style="{StaticResource ConfigButton}"
+                Click="BtnWorkTimeSettings_Click" 
+                Margin="0,0,10,0"/>
 
                 <TextBlock Grid.Row="0" 
-                          Grid.Column="5" 
-                          x:Name="txtPlcInfo" 
-                          Text="" 
-                          FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
-                          VerticalAlignment="Center" 
-                          Margin="0,0,0,5"/>
+                  Grid.Column="5" 
+                  x:Name="txtPlcInfo" 
+                  Text="" 
+                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
+                  VerticalAlignment="Center" 
+                  Margin="0,0,0,0"/>
 
                 <!-- 第1行：生产计划信息 -->
                 <TextBlock Grid.Row="1" 
-                          Grid.Column="0" 
-                          Text="当天计划总产量:" 
-                          FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
-                          VerticalAlignment="Center" 
-                          Margin="0,5,10,0"/>
+                  Grid.Column="0" 
+                  Text="当天计划总产量 / Daily Target:" 
+                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
+                  VerticalAlignment="Center" 
+                  Margin="0,5,10,0"/>
 
                 <TextBox Grid.Row="1" 
-                         Grid.Column="1" 
-                         x:Name="txtPlanTotalOutput" 
-                         Text="3400" 
-                         Margin="0,5,20,0"/>
+                 Grid.Column="1" 
+                 x:Name="txtPlanTotalOutput" 
+                 Style="{StaticResource ConfigTextBox}"
+                 Text="3400" 
+                 Margin="0,5,20,0"/>
 
                 <TextBlock Grid.Row="1" 
-                          Grid.Column="2" 
-                          Text="有效工作时间:" 
-                          FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
-                          VerticalAlignment="Center" 
-                          Margin="0,5,10,0"/>
+                  Grid.Column="2" 
+                  Text="有效工作时间 / Work Time:" 
+                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
+                  VerticalAlignment="Center" 
+                  Margin="0,5,10,0"/>
 
                 <TextBlock Grid.Row="1" 
-                          Grid.Column="3" 
-                          x:Name="txtEffectiveWorkTime" 
-                          Text="10小时" 
-                          FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
-                          VerticalAlignment="Center" 
-                          Margin="0,5,20,0"/>
+                  Grid.Column="3" 
+                  x:Name="txtEffectiveWorkTime" 
+                  Text="10小时 / 10 Hours" 
+                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
+                  VerticalAlignment="Center" 
+                  Margin="0,5,20,0"/>
 
                 <Button Grid.Row="1" 
-                        Grid.Column="4" 
-                        Content="更新计划" 
-                        x:Name="btnUpdatePlan" 
-                        Click="BtnUpdatePlan_Click" 
-                        Margin="0,5,10,0"/>
+                Grid.Column="4" 
+                Content="更新计划 / Update Plan" 
+                x:Name="btnUpdatePlan" 
+                Style="{StaticResource ConfigButton}"
+                Click="BtnUpdatePlan_Click" 
+                Margin="0,5,10,0"/>
 
                 <TextBlock Grid.Row="1" 
-                          Grid.Column="5" 
-                          x:Name="txtPlanStatus" 
-                          Text="计划未更新" 
-                          FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
-                          VerticalAlignment="Center" 
-                          Margin="0,5,0,0"/>
+                  Grid.Column="5" 
+                  x:Name="txtPlanStatus" 
+                  Text="计划未更新 / Plan Not Updated" 
+                  FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=18}" 
+                  VerticalAlignment="Center" 
+                  Margin="0,5,0,0"/>
             </Grid>
         </GroupBox>
 
@@ -251,7 +279,7 @@
                 Visibility="Collapsed" 
                 Margin="0,2,0,5">
             <TextBlock x:Name="txtPlcStatusAlert" 
-                      Text="PLC未连接通讯异常" 
+                      Text="PLC未连接通讯异常 / PLC communication error" 
                       FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=20}" 
                       FontWeight="Bold" 
                       HorizontalAlignment="Center"
@@ -507,7 +535,7 @@
                   FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource FontSizeConverter}, ConverterParameter=16}" 
                   HorizontalAlignment="Center" 
                   Margin="0,0,0,3"
-                  Text="等待连接PLC..."/>
+                  Text="等待连接PLC... / Waiting for PLC connection..."/>
 
         <!-- 操作按钮区域 -->
         <Border Grid.Row="5" 
@@ -531,17 +559,17 @@
 
                 <!-- 控制按钮 -->
                 <Button Grid.Column="1" 
-                        Content="开始监控" 
+                        Content="开始监控 / Start Monitoring" 
                         x:Name="btnStart" 
                         Click="BtnStart_Click" 
                         MinWidth="120"/>
                 <Button Grid.Column="2" 
-                        Content="停止监控" 
+                        Content="停止监控 / Stop Monitoring" 
                         x:Name="btnStop" 
                         Click="BtnStop_Click" 
                         MinWidth="120"/>
                 <Button Grid.Column="3" 
-                        Content="手动刷新" 
+                        Content="手动刷新 / Manual Refresh" 
                         x:Name="btnRefresh" 
                         Click="BtnRefresh_Click" 
                         MinWidth="120"/>

@@ -4,10 +4,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d"
-        Title="工作时间设置" 
-        Height="600" Width="650"
+        Title="工作时间设置 / Work Time Settings" 
+        Height="650" Width="750"
         WindowStartupLocation="CenterOwner"
-        MinHeight="550" MinWidth="600"
+        MinHeight="600" MinWidth="700"
         Background="#0D47A1"
         WindowStyle="SingleBorderWindow"
         ResizeMode="CanResizeWithGrip">
@@ -41,15 +41,18 @@
         <Style x:Key="LabelTextStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
             <Setter Property="FontSize" Value="15"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Width" Value="120"/>
+            <Setter Property="Width" Value="180"/>
             <Setter Property="Margin" Value="0,0,15,0"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
         <Style x:Key="RestTimeLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource RestTimeTextColor}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="TextAlignment" Value="Center"/>
         </Style>
 
         <!-- 输入框样式 -->
@@ -63,9 +66,9 @@
             <Setter Property="Foreground" Value="#333333"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="#BDBDBD"/>
-            <Setter Property="Width" Value="50"/>
+            <Setter Property="Width" Value="55"/>
             <Setter Property="Height" Value="30"/>
-            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="Margin" Value="3,0"/>
         </Style>
 
         <!-- 休息时间输入框样式 -->
@@ -81,6 +84,7 @@
             <Setter Property="Padding" Value="3"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="2,0"/>
             <Style.Triggers>
                 <Trigger Property="IsFocused" Value="True">
                     <Setter Property="BorderBrush" Value="#2196F3"/>
@@ -92,13 +96,13 @@
         <!-- 按钮样式 -->
         <Style TargetType="Button">
             <Setter Property="FontFamily" Value="Microsoft YaHei"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="12,6"/>
             <Setter Property="Background" Value="{StaticResource SecondaryColor}"/>
             <Setter Property="Foreground" Value="{StaticResource TextColor}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="MinWidth" Value="110"/>
             <Setter Property="Height" Value="36"/>
             <Setter Property="Margin" Value="5,0"/>
             <Style.Triggers>
@@ -115,7 +119,7 @@
         <Style x:Key="AddRestTimeButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Padding" Value="12,6"/>
-            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="MinWidth" Value="150"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="Margin" Value="10,0,0,0"/>
         </Style>
@@ -123,11 +127,11 @@
         <!-- 删除按钮样式 -->
         <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="Background" Value="#D32F2F"/>
-            <Setter Property="MinWidth" Value="65"/>
-            <Setter Property="Padding" Value="10,6"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="MinWidth" Value="75"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="Height" Value="30"/>
-            <Setter Property="Margin" Value="15,0,0,0"/>
+            <Setter Property="Margin" Value="10,0,0,0"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#F44336"/>
@@ -135,10 +139,19 @@
             </Style.Triggers>
         </Style>
 
+        <!-- 时间单位标签样式 -->
+        <Style x:Key="TimeUnitLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource RestTimeTextColor}"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+
         <!-- 休息时间项模板 -->
         <DataTemplate x:Key="RestTimeTemplate">
             <Border Background="{StaticResource RestTimeBgColor}" CornerRadius="6" 
-                    Padding="15,12" Margin="0,8" BorderBrush="{StaticResource RestTimeBorderColor}" 
+                    Padding="12,10" Margin="0,8" BorderBrush="{StaticResource RestTimeBorderColor}" 
                     BorderThickness="1">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -148,11 +161,17 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- 标签 -->
-                    <TextBlock Grid.Column="0" Text="休息时间:"
-                               Style="{StaticResource RestTimeLabelStyle}"
-                               Width="90" Margin="0,0,15,0"/>
+                    <StackPanel Grid.Column="0" Orientation="Vertical" 
+                                VerticalAlignment="Center" Margin="0,0,10,0">
+                        <TextBlock Text="休息时间:" 
+                                   Style="{StaticResource RestTimeLabelStyle}"
+                                   TextAlignment="Left"/>
+                        <TextBlock Text="Rest Time:" 
+                                   Style="{StaticResource RestTimeLabelStyle}"
+                                   TextAlignment="Left" FontSize="12"/>
+                    </StackPanel>
 
-                    <!-- 时间输入区域 -->
+                    <!-- 时间输入区域 - 简化网格布局 -->
                     <Grid Grid.Column="1" VerticalAlignment="Center">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -164,42 +183,81 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- 开始时间 -->
+                        <!-- 开始时间小时 -->
                         <TextBox Grid.Column="0" x:Name="txtRestStartHour" 
                                  Text="{Binding StartHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{StaticResource RestTimeTextBoxStyle}"
-                                 PreviewTextInput="NumberValidationTextBox"
-                                 TextChanged="RestTimeTextBox_TextChanged"/>
-                        <TextBlock Grid.Column="1" Text="时" Style="{StaticResource RestTimeLabelStyle}" Margin="8,0"/>
+                                 Style="{StaticResource RestTimeTextBoxStyle}"/>
+
+                        <!-- 时 / Hour -->
+                        <StackPanel Grid.Column="1" Orientation="Vertical" 
+                                    VerticalAlignment="Center" Margin="3,0,8,0" Width="35">
+                            <TextBlock Text="时" Style="{StaticResource TimeUnitLabelStyle}"/>
+                            <TextBlock Text="Hour" Style="{StaticResource TimeUnitLabelStyle}" 
+                                       FontSize="11" Margin="0,-2,0,0"/>
+                        </StackPanel>
+
+                        <!-- 开始时间分钟 -->
                         <TextBox Grid.Column="2" x:Name="txtRestStartMinute" 
                                  Text="{Binding StartMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=00}" 
-                                 Style="{StaticResource RestTimeTextBoxStyle}"
-                                 PreviewTextInput="NumberValidationTextBox"
-                                 TextChanged="RestTimeTextBox_TextChanged"/>
-                        <TextBlock Grid.Column="3" Text="分" Style="{StaticResource RestTimeLabelStyle}" Margin="8,0,15,0"/>
+                                 Style="{StaticResource RestTimeTextBoxStyle}"/>
 
-                        <!-- 分隔符 -->
-                        <TextBlock Grid.Column="4" Text="至" Style="{StaticResource RestTimeLabelStyle}" Margin="10,0"/>
+                        <!-- 分 / Min -->
+                        <StackPanel Grid.Column="3" Orientation="Vertical" 
+                                    VerticalAlignment="Center" Margin="3,0,15,0" Width="35">
+                            <TextBlock Text="分" Style="{StaticResource TimeUnitLabelStyle}"/>
+                            <TextBlock Text="Min" Style="{StaticResource TimeUnitLabelStyle}" 
+                                       FontSize="11" Margin="0,-2,0,0"/>
+                        </StackPanel>
 
-                        <!-- 结束时间 -->
-                        <TextBox Grid.Column="5" x:Name="txtRestEndHour" 
+                        <!-- 分隔符 - 修复重叠问题 -->
+                        <!-- 至 -->
+                        <TextBlock Grid.Column="4" Text="至" 
+                                   Style="{StaticResource RestTimeLabelStyle}" 
+                                   Margin="10,0" VerticalAlignment="Center"
+                                   HorizontalAlignment="Center" Width="30"/>
+
+                        <!-- To -->
+                        <TextBlock Grid.Column="5" Text="To" 
+                                   Style="{StaticResource RestTimeLabelStyle}" 
+                                   Margin="10,0" VerticalAlignment="Center"
+                                   HorizontalAlignment="Center" Width="30" FontSize="11"/>
+
+                        <!-- 结束时间小时 -->
+                        <TextBox Grid.Column="6" x:Name="txtRestEndHour" 
                                  Text="{Binding EndHour, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{StaticResource RestTimeTextBoxStyle}"
-                                 PreviewTextInput="NumberValidationTextBox"
-                                 TextChanged="RestTimeTextBox_TextChanged"/>
-                        <TextBlock Grid.Column="6" Text="时" Style="{StaticResource RestTimeLabelStyle}" Margin="8,0"/>
-                        <TextBox Grid.Column="7" x:Name="txtRestEndMinute" 
+                                 Style="{StaticResource RestTimeTextBoxStyle}"/>
+
+                        <!-- 时 / Hour -->
+                        <StackPanel Grid.Column="7" Orientation="Vertical" 
+                                    VerticalAlignment="Center" Margin="3,0,8,0" Width="35">
+                            <TextBlock Text="时" Style="{StaticResource TimeUnitLabelStyle}"/>
+                            <TextBlock Text="Hour" Style="{StaticResource TimeUnitLabelStyle}" 
+                                       FontSize="11" Margin="0,-2,0,0"/>
+                        </StackPanel>
+
+                        <!-- 结束时间分钟 -->
+                        <TextBox Grid.Column="8" x:Name="txtRestEndMinute" 
                                  Text="{Binding EndMinute, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=00}" 
-                                 Style="{StaticResource RestTimeTextBoxStyle}"
-                                 PreviewTextInput="NumberValidationTextBox"
-                                 TextChanged="RestTimeTextBox_TextChanged"/>
-                        <TextBlock Grid.Column="8" Text="分" Style="{StaticResource RestTimeLabelStyle}" Margin="8,0"/>
+                                 Style="{StaticResource RestTimeTextBoxStyle}"/>
+
+                        <!-- 分 / Min -->
+                        <StackPanel Grid.Column="9" Orientation="Vertical" 
+                                    VerticalAlignment="Center" Margin="3,0,0,0" Width="35">
+                            <TextBlock Text="分" Style="{StaticResource TimeUnitLabelStyle}"/>
+                            <TextBlock Text="Min" Style="{StaticResource TimeUnitLabelStyle}" 
+                                       FontSize="11" Margin="0,-2,0,0"/>
+                        </StackPanel>
                     </Grid>
 
                     <!-- 删除按钮 -->
-                    <Button Grid.Column="2" Content="删除" Style="{StaticResource DeleteButtonStyle}"
+                    <Button Grid.Column="2" Content="删除" 
+                            ToolTip="Delete / 删除"
+                            Style="{StaticResource DeleteButtonStyle}"
                             Click="DeleteRestTime_Click" Tag="{Binding}"
                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
                 </Grid>
@@ -207,7 +265,7 @@
         </DataTemplate>
     </Window.Resources>
 
-    <Grid Margin="20">
+    <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -218,55 +276,83 @@
         </Grid.RowDefinitions>
 
         <!-- 标题 -->
-        <TextBlock Grid.Row="0" Text="工作时间设置" 
+        <TextBlock Grid.Row="0" Text="工作时间设置 / Work Time Settings" 
                    Style="{StaticResource HeaderTextStyle}" 
-                   Margin="0,0,0,20"/>
+                   Margin="0,0,0,15"/>
 
         <!-- 工作时间设置 -->
         <Border Grid.Row="1" BorderBrush="#1E88E5" BorderThickness="0,0,0,1" 
-                Padding="0,0,0,20" Margin="0,0,0,20">
+                Padding="0,0,0,15" Margin="0,0,0,15">
             <StackPanel>
                 <!-- 工作开始时间 -->
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-                    <TextBlock Text="工作开始时间:" Style="{StaticResource LabelTextStyle}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="工作开始时间:" Style="{StaticResource LabelTextStyle}"/>
+                        <TextBlock Text="Work Start Time:" Style="{StaticResource LabelTextStyle}" 
+                                   FontSize="13" Margin="0,-5,0,0"/>
+                    </StackPanel>
                     <TextBox x:Name="txtStartHour" Text="8" 
                              PreviewTextInput="NumberValidationTextBox"
                              TextChanged="TimeTextBox_TextChanged"/>
-                    <TextBlock Text="时" Margin="8,0,25,0" FontSize="14" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="3,0,15,0" Width="40">
+                        <TextBlock Text="时" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Hour" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" 
+                                   Margin="0,-3,0,0"/>
+                    </StackPanel>
                     <TextBox x:Name="txtStartMinute" Text="00" 
                              PreviewTextInput="NumberValidationTextBox"
                              TextChanged="TimeTextBox_TextChanged"/>
-                    <TextBlock Text="分" Margin="8,0,0,0" FontSize="14" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="3,0,0,0" Width="40">
+                        <TextBlock Text="分" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Min" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" 
+                                   Margin="0,-3,0,0"/>
+                    </StackPanel>
                 </StackPanel>
 
                 <!-- 工作结束时间 -->
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="工作结束时间:" Style="{StaticResource LabelTextStyle}"/>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="工作结束时间:" Style="{StaticResource LabelTextStyle}"/>
+                        <TextBlock Text="Work End Time:" Style="{StaticResource LabelTextStyle}" 
+                                   FontSize="13" Margin="0,-5,0,0"/>
+                    </StackPanel>
                     <TextBox x:Name="txtEndHour" Text="18" 
                              PreviewTextInput="NumberValidationTextBox"
                              TextChanged="TimeTextBox_TextChanged"/>
-                    <TextBlock Text="时" Margin="8,0,25,0" FontSize="14" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="3,0,15,0" Width="40">
+                        <TextBlock Text="时" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Hour" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" 
+                                   Margin="0,-3,0,0"/>
+                    </StackPanel>
                     <TextBox x:Name="txtEndMinute" Text="00" 
                              PreviewTextInput="NumberValidationTextBox"
                              TextChanged="TimeTextBox_TextChanged"/>
-                    <TextBlock Text="分" Margin="8,0,0,0" FontSize="14" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="3,0,0,0" Width="40">
+                        <TextBlock Text="分" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Min" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center" 
+                                   Margin="0,-3,0,0"/>
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
         </Border>
 
         <!-- 休息时间列表 -->
         <Border Grid.Row="2" BorderBrush="#1E88E5" BorderThickness="0,0,0,1" 
-                Padding="0,0,0,15" Margin="0,0,0,20">
+                Padding="0,0,0,12" Margin="0,0,0,15">
             <StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                    <TextBlock Text="休息时间设置" Style="{StaticResource LabelTextStyle}"/>
-                    <Button x:Name="btnAddRestTime" Content="添加休息时间" 
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="休息时间设置" Style="{StaticResource LabelTextStyle}"/>
+                        <TextBlock Text="Rest Time Settings" Style="{StaticResource LabelTextStyle}" 
+                                   FontSize="13" Margin="0,-5,0,0"/>
+                    </StackPanel>
+                    <Button x:Name="btnAddRestTime" Content="添加休息时间 / Add Rest Time" 
                             Click="BtnAddRestTime_Click" 
                             Style="{StaticResource AddRestTimeButtonStyle}"/>
                 </StackPanel>
 
                 <Border BorderBrush="#BDBDBD" BorderThickness="1" CornerRadius="4" 
-                        Padding="12" MaxHeight="220" Background="{StaticResource RestTimeContainerBgColor}">
+                        Padding="10" MaxHeight="250" Background="{StaticResource RestTimeContainerBgColor}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" 
                                   HorizontalScrollBarVisibility="Disabled">
                         <ItemsControl x:Name="RestTimesItemsControl" 
@@ -284,9 +370,9 @@
 
         <!-- 工作时间信息 -->
         <Border Grid.Row="3" Background="{StaticResource InfoBgColor}" 
-                CornerRadius="5" Padding="15" Margin="0,10,0,20">
+                CornerRadius="5" Padding="12" Margin="0,10,0,15">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <TextBlock x:Name="txtWorkTimeInfo" FontSize="13" 
+                <TextBlock x:Name="txtWorkTimeInfo" FontSize="12" 
                            FontFamily="Microsoft YaHei"
                            TextWrapping="Wrap" MinHeight="100"/>
             </ScrollViewer>
@@ -295,10 +381,10 @@
         <!-- 按钮区域 -->
         <StackPanel Grid.Row="5" Orientation="Horizontal" 
                     HorizontalAlignment="Center" Margin="0,10,0,0">
-            <Button Content="保存设置" Click="BtnSave_Click" IsDefault="True"
-                    Padding="20,10" FontSize="14" FontWeight="SemiBold"/>
-            <Button Content="取消" Click="BtnCancel_Click" IsCancel="True"
-                    Padding="20,10" FontSize="14" FontWeight="SemiBold"/>
+            <Button Content="保存设置 / Save Settings" Click="BtnSave_Click" IsDefault="True"
+                    Padding="15,8" FontSize="13" FontWeight="SemiBold"/>
+            <Button Content="取消 / Cancel" Click="BtnCancel_Click" IsCancel="True"
+                    Padding="15,8" FontSize="13" FontWeight="SemiBold"/>
         </StackPanel>
     </Grid>
 </Window>

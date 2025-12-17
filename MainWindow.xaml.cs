@@ -67,6 +67,9 @@ namespace MideaProductionBoard
             DataContext = this;
             txtPlcAddress.Text = $"{PLC_IP}:{PLC_PORT}";
 
+            // 初始化双语文本
+            InitializeBilingualText();
+
             InitializeTimers();
             ResetDisplayToZero();
             UpdateDisplay();
@@ -77,6 +80,24 @@ namespace MideaProductionBoard
 
             // 添加窗口大小变化事件处理
             this.SizeChanged += MainWindow_SizeChanged;
+        }
+
+        // 初始化双语文本
+        private void InitializeBilingualText()
+        {
+            // 设置初始状态文本
+            txtConnectionStatus.Text = BilingualResources.Disconnected;
+            txtPlanStatus.Text = BilingualResources.PlanNotUpdated;
+
+            // 更新按钮文本
+            btnStart.Content = BilingualResources.StartMonitoring;
+            btnStop.Content = BilingualResources.StopMonitoring;
+            btnRefresh.Content = BilingualResources.ManualRefresh;
+            btnWorkTimeSettings.Content = BilingualResources.WorkTimeSettings;
+            btnUpdatePlan.Content = BilingualResources.UpdatePlan;
+
+            // 设置状态文本
+            txtStatus.Text = BilingualResources.WaitingForPLC;
         }
 
         // 窗口大小变化事件处理
@@ -128,11 +149,11 @@ namespace MideaProductionBoard
                 //plc = new MelsecMcNet(PLC_IP, PLC_PORT);
                 //plc.ConnectTimeOut = 3000;
                 //plc.ReceiveTimeOut = 3000;
-                plc = new MitsubishiClient(MitsubishiVersion.Qna_3E, PLC_IP, PLC_PORT,3000);
+                plc = new MitsubishiClient(MitsubishiVersion.Qna_3E, PLC_IP, PLC_PORT, 3000);
             }
             catch (Exception ex)
             {
-                ShowStatus($"PLC初始化失败: {ex.Message}");
+                ShowStatus($"PLC初始化失败: {ex.Message}", $"PLC initialization failed: {ex.Message}");
             }
         }
 
@@ -236,7 +257,7 @@ namespace MideaProductionBoard
                 if (!IsPlcConnected)
                 {
                     reconnectAttempts++;
-                    ShowStatus($"尝试第{reconnectAttempts}次重连...");
+                    ShowStatus($"尝试第{reconnectAttempts}次重连...", $"Attempting reconnection {reconnectAttempts}...");
 
                     // 先断开旧连接
                     if (plc != null)
@@ -252,7 +273,7 @@ namespace MideaProductionBoard
                     if (IsPlcConnected)
                     {
                         reconnectAttempts = 0;
-                        ShowStatus("重连成功");
+                        ShowStatus("重连成功", "Reconnection successful");
 
                         // 如果之前正在监控，重新开始监控
                         if (isMonitoring)
@@ -266,7 +287,7 @@ namespace MideaProductionBoard
                         int delaySeconds = reconnectAttempts <= 3 ?
                             RECONNECT_BASE_INTERVAL * reconnectAttempts : 30;
 
-                        ShowStatus($"重连失败，{delaySeconds}秒后再次尝试");
+                        ShowStatus($"重连失败，{delaySeconds}秒后再次尝试", $"Reconnection failed, retrying in {delaySeconds} seconds");
                         reconnectTimer.Stop();
                         Task.Delay(delaySeconds * 1000).ContinueWith(t =>
                         {
@@ -277,7 +298,7 @@ namespace MideaProductionBoard
             }
             catch (Exception ex)
             {
-                ShowStatus($"重连异常: {ex.Message}");
+                ShowStatus($"重连异常: {ex.Message}", $"Reconnection exception: {ex.Message}");
             }
         }
 
@@ -309,11 +330,11 @@ namespace MideaProductionBoard
 
                         Dispatcher.Invoke(() =>
                         {
-                            txtConnectionStatus.Text = "已连接";
+                            txtConnectionStatus.Text = BilingualResources.Connected;
                             txtConnectionStatus.Foreground = System.Windows.Media.Brushes.LightGreen;
                             borderPlcStatus.Opacity = 1.0;
                         });
-                        ShowStatus("PLC连接成功");
+                        ShowStatus("PLC连接成功", "PLC connected successfully");
 
                         // 连接成功后读取完整数据
                         ReadPlcData();
@@ -322,22 +343,22 @@ namespace MideaProductionBoard
                     else
                     {
                         IsPlcConnected = false;
-                        ShowStatus($"PLC连接失败: {openResult.Err}");
+                        ShowStatus($"PLC连接失败: {openResult.Err}", $"PLC connection failed: {openResult.Err}");
                     }
                 }
 
                 IsPlcConnected = false;
-                ShowStatus("PLC初始化失败，对象为null");
+                ShowStatus("PLC初始化失败，对象为null", "PLC initialization failed, object is null");
             }
             catch (SocketException sockEx) // 注意这里使用 System.Net.Sockets.SocketException
             {
                 IsPlcConnected = false;
-                ShowStatus($"网络连接失败: {sockEx.Message}");
+                ShowStatus($"网络连接失败: {sockEx.Message}", $"Network connection failed: {sockEx.Message}");
             }
             catch (Exception ex)
             {
                 IsPlcConnected = false;
-                ShowStatus($"PLC连接异常: {ex.Message}");
+                ShowStatus($"PLC连接异常: {ex.Message}", $"PLC connection exception: {ex.Message}");
             }
         }
 
@@ -348,13 +369,13 @@ namespace MideaProductionBoard
                 if (IsPlcConnected)
                 {
                     borderPlcStatus.Visibility = Visibility.Collapsed;
-                    txtConnectionStatus.Text = "已连接";
+                    txtConnectionStatus.Text = BilingualResources.Connected;
                     txtConnectionStatus.Foreground = System.Windows.Media.Brushes.LightGreen;
                 }
                 else
                 {
                     borderPlcStatus.Visibility = Visibility.Visible;
-                    txtConnectionStatus.Text = "未连接";
+                    txtConnectionStatus.Text = BilingualResources.Disconnected;
                     txtConnectionStatus.Foreground = System.Windows.Media.Brushes.Red;
                 }
             });
@@ -396,7 +417,7 @@ namespace MideaProductionBoard
                             lastUpdateTime = now;
 
                             // 显示小时切换信息
-                            ShowStatus($"小时切换: {now:HH:00}");
+                            ShowStatus($"小时切换: {now:HH:00}", $"Hour switched: {now:HH:00}");
                         }
 
                         int outputThisPeriod = cumulativeOutput - lastCumulativeOutput;
@@ -413,14 +434,14 @@ namespace MideaProductionBoard
                         // 计算实际UPH（支持多个休息时间）
                         CalculateActualUPH(cumulativeOutput);
 
-                        ShowStatus($"数据更新成功 - {DateTime.Now:HH:mm:ss}");
+                        ShowStatus($"数据更新成功 - {DateTime.Now:HH:mm:ss}", $"Data updated successfully - {DateTime.Now:HH:mm:ss}");
                     });
                 }
                 else
                 {
                     // 读取失败时标记为未连接
                     IsPlcConnected = false;
-                    Dispatcher.Invoke(() => ShowStatus($"读取PLC数据失败: {result.Response}"));
+                    Dispatcher.Invoke(() => ShowStatus($"读取PLC数据失败: {result.Response}", $"Failed to read PLC data: {result.Response}"));
 
                     // 停止数据定时器，等待重连
                     if (dataTimer.IsEnabled)
@@ -433,13 +454,13 @@ namespace MideaProductionBoard
             {
                 // 网络异常
                 IsPlcConnected = false;
-                Dispatcher.Invoke(() => ShowStatus($"网络异常: {sockEx.Message}"));
+                Dispatcher.Invoke(() => ShowStatus($"网络异常: {sockEx.Message}", $"Network exception: {sockEx.Message}"));
                 dataTimer.Stop();
             }
             catch (Exception ex)
             {
                 IsPlcConnected = false;
-                Dispatcher.Invoke(() => ShowStatus($"读取数据异常: {ex.Message}"));
+                Dispatcher.Invoke(() => ShowStatus($"读取数据异常: {ex.Message}", $"Data reading exception: {ex.Message}"));
                 dataTimer.Stop();
             }
         }
@@ -504,7 +525,7 @@ namespace MideaProductionBoard
             }
             catch (Exception ex)
             {
-                ShowStatus($"计算实际UPH错误: {ex.Message}");
+                ShowStatus($"计算实际UPH错误: {ex.Message}", $"Error calculating actual UPH: {ex.Message}");
             }
         }
 
@@ -544,14 +565,24 @@ namespace MideaProductionBoard
                 int averageUPH = netWorkHours > 0 ? (int)(planTotalOutput / netWorkHours) : 0;
 
                 txtAverageUPH.Text = averageUPH.ToString();
-                txtEffectiveWorkTime.Text = $"{netWorkHours:F1}小时";
+                txtEffectiveWorkTime.Text = $"{netWorkHours:F1}小时 / {netWorkHours:F1} Hours";
             });
         }
 
-        private void ShowStatus(string message)
+        private void ShowStatus(string chineseMessage, string englishMessage = null)
         {
             Dispatcher.Invoke(() =>
             {
+                string message;
+                if (englishMessage != null)
+                {
+                    message = $"{chineseMessage} / {englishMessage}";
+                }
+                else
+                {
+                    // 如果没有提供英文，只显示中文
+                    message = chineseMessage;
+                }
                 txtStatus.Text = $"{DateTime.Now:HH:mm:ss} - {message}";
             });
         }
@@ -564,7 +595,8 @@ namespace MideaProductionBoard
                 workTime = settingsWindow.WorkTime;
                 UpdateDisplay();
                 CheckWorkTimeStatus(); // 更新工作状态
-                ShowStatus($"工作时间设置已更新，共 {workTime.RestTimes.Count} 个休息时间段");
+                ShowStatus($"工作时间设置已更新，共 {workTime.RestTimes.Count} 个休息时间段",
+                          $"Work time settings updated, {workTime.RestTimes.Count} rest periods in total");
             }
         }
 
@@ -576,17 +608,21 @@ namespace MideaProductionBoard
                 {
                     planTotalOutput = totalOutput;
                     UpdateDisplay();
-                    Dispatcher.Invoke(() => txtPlanStatus.Text = "计划已更新");
-                    ShowStatus("生产计划更新成功");
+                    Dispatcher.Invoke(() => txtPlanStatus.Text = BilingualResources.PlanUpdated);
+                    ShowStatus("生产计划更新成功", "Production plan updated successfully");
                 }
                 else
                 {
-                    MessageBox.Show("请输入有效的数字", "输入错误", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(
+                        BilingualResources.InputValidNumber,
+                        BilingualResources.InputError,
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)
             {
-                ShowStatus($"更新计划失败: {ex.Message}");
+                ShowStatus($"更新计划失败: {ex.Message}", $"Failed to update plan: {ex.Message}");
             }
         }
 
@@ -599,14 +635,18 @@ namespace MideaProductionBoard
                     dataTimer.Start();
                     isMonitoring = true;
                     lastUpdateTime = DateTime.Now;
-                    ShowStatus("开始监控PLC数据");
+                    ShowStatus("开始监控PLC数据", "Start monitoring PLC data");
 
                     // 立即读取一次数据
                     ReadPlcData();
                 }
                 else
                 {
-                    MessageBox.Show("PLC未连接，无法开始监控", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(
+                        BilingualResources.PlcNotConnectedStart,
+                        BilingualResources.Notice,
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
                 }
             }
         }
@@ -617,7 +657,7 @@ namespace MideaProductionBoard
             {
                 dataTimer.Stop();
                 isMonitoring = false;
-                ShowStatus("停止监控PLC数据");
+                ShowStatus("停止监控PLC数据", "Stop monitoring PLC data");
             }
         }
 
@@ -629,7 +669,11 @@ namespace MideaProductionBoard
             }
             else
             {
-                MessageBox.Show("PLC未连接，无法刷新数据", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(
+                    BilingualResources.PlcNotConnectedRefresh,
+                    BilingualResources.Notice,
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
             }
         }
 
