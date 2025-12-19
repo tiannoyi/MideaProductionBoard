@@ -115,21 +115,21 @@ plc = new MitsubishiClient(MitsubishiVersion.MC_3E, PLC_IP, PLC_PORT); // 尝试
 ```
 
 ## ❓ 常见问题 (FAQ)
-1. **Q:** 程序启动后一直显示“未连接”，怎么办？
+1. **Q:** 程序启动后一直显示“未连接”，怎么办？  
 **A:** 请按以下步骤排查：
 检查 PLC_IP 和 PLC_PORT 配置是否正确。
 在命令行使用 ping PLC_IP 测试网络连通性。
 确认PLC已上电，且以太网配置（如MC协议使能）无误。
 查看软件底部状态日志，是否有具体的错误信息（如“连接超时”、“拒绝访问”）。
 
-2. Q: 能读到数据，但小时产量统计不准确？
-A: 程序在整点时刻会自动重置“本小时产量”。如果逻辑异常，请检查 ReadPlcData() 方法中基于 lastUpdateTime.Hour 的判断逻辑。
+2. **Q:** 能读到数据，但小时产量统计不准确？  
+**A:** 程序在整点时刻会自动重置“本小时产量”。如果逻辑异常，请检查 ReadPlcData() 方法中基于 lastUpdateTime.Hour 的判断逻辑。
 
-Q: 如何修改数据读取的频率？
-A: 在 InitializeTimers() 方法中，调整 dataTimer.Interval 的值，例如改为 TimeSpan.FromSeconds(5) 则为5秒读取一次。
+3. **Q:** 如何修改数据读取的频率？  
+**A:** 在 InitializeTimers() 方法中，调整 dataTimer.Interval 的值，例如改为 TimeSpan.FromSeconds(5) 则为5秒读取一次。
 
-Q: 我可以监控更多的PLC数据点吗？
-A: 可以。在 ReadPlcData() 方法中，仿照现有代码调用 plc.ReadInt32("D新的地址") 或 plc.ReadInt16(...)、plc.ReadBoolean(...) 等方法读取其他寄存器或线圈，并更新到界面。
+4. **Q:** 我可以监控更多的PLC数据点吗？  
+**A:** 可以。在 ReadPlcData() 方法中，仿照现有代码调用 plc.ReadInt32("D新的地址") 或 plc.ReadInt16(...)、plc.ReadBoolean(...) 等方法读取其他寄存器或线圈，并更新到界面。
 
 ## 🤝 如何贡献
 欢迎任何形式的贡献！
